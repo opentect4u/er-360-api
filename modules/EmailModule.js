@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 const { F_Select } = require('./MasterModule');
 
 // var client_url = 'http://localhost:4200/#/';
-var client_url = 'https://verm.opentech4u.co.in/#/';
-var api_url = 'https://vermapi.opentech4u.co.in/';
+var client_url = 'https://er-360/#/';
+var api_url = 'https://api.er-360/';
 
 const UserCredential = async (email_id, user_name, password) => {
     var email_name = 'Admin'
