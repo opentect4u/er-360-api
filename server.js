@@ -154,7 +154,7 @@ const GetRes = (frm, to, inc_id) => {
 const server = http.createServer(app)
 const io = socketIO(server, {
 	cors: {
-		origin: ["https://verm.opentech4u.co.in", "http://localhost:4200"]
+		origin: ["https://verm.opentech4u.co.in", "http://localhost:4200", "https://er-360.com"]
 	}
 })
 
