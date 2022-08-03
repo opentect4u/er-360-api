@@ -150,7 +150,7 @@ BoardRouter.get('/casualty_board', async (req, res) => {
 BoardRouter.get('/casualty', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_casualty_board a',
-        select = 'COUNT(a.id) as tot_cas, a.location',
+        select = 'COUNT(a.id) as tot_cas, a.location, a.full_name, a.emp_condition, a.time',
         whr = `a.inc_id = "${inc_id}"`,
         order = `GROUP BY a.location`;
     var dt = await F_Select(select, table_name, whr, order);
