@@ -277,7 +277,7 @@ BoardRouter.get('/get_prob_cat', async (req, res) => {
 BoardRouter.get('/prob_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_prob_board a',
-        select = 'a.id, a.inc_id, DATE_FORMAT(a.date, "%Y-%m-%d") date, a.prob_cat_id, a.time, a.value',
+        select = 'a.id, a.inc_id, DATE_FORMAT(a.date, "%Y-%m-%d") date, a.prob_cat_id, a.time, a.value, a.total_prob',
         whr = `a.inc_id = "${inc_id}"`,
         order = `ORDER BY a.id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -292,9 +292,9 @@ BoardRouter.post('/prob_board', async (req, res) => {
     if (data.dt.length > 0) {
         data.dt.forEach(async dta => {
             var table_name = 'td_prob_board',
-                fields = dta.id > 0 ? `date = "${now_dt}", prob_cat_id = "${dta.prob_cat_id}", time = "${dta.Time}", value = "${dta.value}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, prob_cat_id, time, value, created_by, created_at)',
-                values = `("${data.inc_id}", "${now_dt}", "${dta.prob_cat_id}", "${dta.Time}", "${dta.value}", "${data.user}", "${datetime}")`,
+                fields = dta.id > 0 ? `date = "${now_dt}", prob_cat_id = "${dta.prob_cat_id}", time = "${dta.Time}", value = "${dta.value}", total_prob = "${dta.total_prob}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    '(inc_id, date, prob_cat_id, time, value, total_prob, created_by, created_at)',
+                values = `("${data.inc_id}", "${now_dt}", "${dta.prob_cat_id}", "${dta.Time}", "${dta.value}", "${dta.total_prob}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
@@ -318,7 +318,7 @@ BoardRouter.post('/prob_board', async (req, res) => {
 BoardRouter.get('/prob_board_dashboard', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_prob_board a, md_prob_category b',
-        select = 'a.inc_id, b.name as prob_cat, SUM(a.value) as value',
+        select = 'a.inc_id, b.name as prob_cat, SUM(a.value) as value, SUM(a.total_prob) total_prob',
         whr = `a.prob_cat_id=b.id AND inc_id = "${inc_id}"`,
         order = `GROUP BY a.prob_cat_id ORDER BY a.prob_cat_id`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -329,7 +329,7 @@ BoardRouter.get('/prob_board_dashboard', async (req, res) => {
 BoardRouter.get('/prob_board_report', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_prob_board a, md_prob_category b',
-        select = 'a.id, a.inc_id, a.date, DATE_FORMAT(a.date, "%d/%m/%Y") AS date_format, a.prob_cat_id, b.name as prob_cat, a.time, DATE_FORMAT(a.time, "%h:%i %p") AS time_format, a.value',
+        select = 'a.id, a.inc_id, a.date, DATE_FORMAT(a.date, "%d/%m/%Y") AS date_format, a.prob_cat_id, b.name as prob_cat, a.time, DATE_FORMAT(a.time, "%h:%i %p") AS time_format, a.value, a.total_prob',
         whr = `a.prob_cat_id=b.id AND inc_id = "${inc_id}"`,
         order = `ORDER BY id`;
     var dt = await F_Select(select, table_name, whr, order);
