@@ -6,7 +6,7 @@ const BoardRouter = express.Router();
 /////////////////////////////// ACTIVE INCIDENT DETAILS ///////////////////////////////////////
 BoardRouter.get('/get_active_inc', async (req, res) => {
     var table_name = 'td_incident a, md_location b, md_tier c, md_incident_type d',
-        select = 'a.id, a.inc_no, a.inc_name, b.offshore_name, b.offshore_latt as lat, b.offshore_long lon, c.tier_type, a.inc_dt, TIMESTAMPDIFF(HOUR,a.inc_dt, NOW()) as dif_time, d.incident_name incident_type, (SELECT COUNT(id) FROM td_casualty_board e WHERE a.id=e.inc_id) AS tot_casualty',
+        select = 'a.id, a.inc_no, a.inc_name, a.brief_desc, b.offshore_name, b.offshore_latt as lat, b.offshore_long lon, c.tier_type, a.inc_dt, TIMESTAMPDIFF(HOUR,a.inc_dt, NOW()) as dif_time, d.incident_name incident_type, (SELECT COUNT(id) FROM td_casualty_board e WHERE a.id=e.inc_id) AS tot_casualty',
         whr = `a.inc_location_id=b.id AND a.initial_tier_id=c.id AND a.inc_type_id=d.id AND a.inc_status = 'O'`,
         order = 'ORDER BY a.id';
     var dt = await F_Select(select, table_name, whr, order);
@@ -18,7 +18,7 @@ BoardRouter.get('/get_active_inc', async (req, res) => {
 BoardRouter.get('/inc_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_board',
-        select = 'id, inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, DATE_FORMAT(created_at, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -33,12 +33,12 @@ BoardRouter.post('/inc_board', async (req, res) => {
     if (data.dt.length > 0) {
         data.dt.forEach(async dt => {
             var table_name = 'td_inc_board',
-                fields = dt.id > 0 ? `inc_id = "${data.inc_id}", date = "${date}", installation = "${data.installation}", 
+                fields = dt.id > 0 ? `inc_id = "${data.inc_id}", date = "${date}", time = "${dt.time_inc}", installation = "${data.installation}", 
                 coordinates = "${data.coordinates}", visibility = "${dt.visibility}", wind_speed = "${dt.wind_speed}", 
                 wind_direc = "${dt.wind_direc}", sea_state = "${dt.sea_state}", temp = "${dt.temp}", temp_unit = "${dt.temp_unit}", summary = "${data.summary}",
                 status = "${data.status}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, created_by, created_at)',
-                values = `("${data.inc_id}", "${date}", "${data.installation}", "${data.coordinates}", "${dt.visibility}", 
+                    '(inc_id, date, time, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, created_by, created_at)',
+                values = `("${data.inc_id}", "${date}", "${dt.time_inc}", "${data.installation}", "${data.coordinates}", "${dt.visibility}", 
                 "${dt.wind_speed}", "${dt.wind_direc}", "${dt.sea_state}", "${dt.temp}", "${dt.temp_unit}", "${data.summary}", "${data.status}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dt.id}`,
                 flag = dt.id > 0 ? 1 : 0,
@@ -191,7 +191,7 @@ BoardRouter.post('/casualty_board', async (req, res) => {
 BoardRouter.get('/evacuation_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_evacuation_board',
-        select = 'id, inc_id, date, destination, mode_of_transport, pob_remaining, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, destination, mode_of_transport, pob_remaining, remarks, time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -205,15 +205,14 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
     if (data.dt.length > 0) {
         data.dt.forEach(async dta => {
             var table_name = 'td_evacuation_board',
-                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", destination = "${dta.destination}",
+                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", time = "${dta.time}", destination = "${dta.destination}",
                 mode_of_transport = "${dta.mode_of_transport}", pob_remaining = "${dta.pob_remaining}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, destination, mode_of_transport, pob_remaining, remarks, created_by, created_at)',
-                values = `("${data.inc_id}", "${datetime}", "${dta.destination}", "${dta.mode_of_transport}", "${dta.pob_remaining}", "${dta.remarks}",
+                    '(inc_id, date, time, destination, mode_of_transport, pob_remaining, remarks, created_by, created_at)',
+                values = `("${data.inc_id}", "${datetime}", "${dta.time}", "${dta.destination}", "${dta.mode_of_transport}", "${dta.pob_remaining}", "${dta.remarks}",
                 "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
-
             var user_id = data.user,
                 act_type = flag > 0 ? 'M' : 'C',
                 activity = `Evacuation Board For Incident ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${datetime}. Mode of transport is ${dta.mode_of_transport}, ${dta.pob_remaining} no of Prob Remains`;
@@ -230,7 +229,7 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
 BoardRouter.get('/event_log_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_events_log_board',
-        select = 'id, inc_id, date, situation_status, resource_assigned, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, situation_status, resource_assigned, time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -244,10 +243,10 @@ BoardRouter.post('/event_log_board', async (req, res) => {
     if (data.dt.length > 0) {
         data.dt.forEach(async dta => {
             var table_name = 'td_events_log_board',
-                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", situation_status = "${dta.situation_status}",
+                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", time = "${dta.time}", situation_status = "${dta.situation_status}",
                 resource_assigned = "${dta.resource_assigned}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, situation_status, resource_assigned, created_by, created_at)',
-                values = `("${data.inc_id}", "${datetime}", "${dta.situation_status}", "${dta.resource_assigned}",
+                    '(inc_id, date, time, situation_status, resource_assigned, created_by, created_at)',
+                values = `("${data.inc_id}", "${datetime}", "${dta.time}", "${dta.situation_status}", "${dta.resource_assigned}",
                 "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,

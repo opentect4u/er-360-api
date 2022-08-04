@@ -178,29 +178,6 @@ io.on('connection', async function (socket) {
 		})
 	}, 10000);
 
-	setInterval(function () {
-		for (let user of user_data) {
-			let sql = ''
-			let sql1 = ''
-			sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code} GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
-			sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code}`
-			// console.log(sql);
-			db.query(sql, (err, result) => {
-				if (err) {
-					console.log(err);
-					socket.broadcast.to(user.s_id).emit('notification', err)
-				} else {
-					db.query(sql1, (error, res) => {
-						result.push({ total: res[0].total })
-						// console.log(result, res[0].total);
-						socket.broadcast.to(user.s_id).emit('notification', result)
-					})
-
-				}
-			})
-		}
-	}, 10000)
-
 	socket.on('join', (data) => {
 		console.log(`${data.user} join the room ${data.room}`);
 		data['s_id'] = socket.id
