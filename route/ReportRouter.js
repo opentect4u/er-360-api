@@ -19,9 +19,11 @@ ReportRouter.get('/incident_report', async (req, res) => {
         to_dt = req.query.to_dt,
         inc_id = req.query.inc_id,
         inc_whr = inc_id > 0 ? `AND a.id = ${inc_id}` : '',
+        tier_id = req.query.tier_id,
+        tier_whr = tier_id > 0 ? `AND a.final_tier_id = ${tier_id}` : '',
         table_name = 'td_incident a, md_incident_type b, md_location c, md_tier d, md_employee e',
         select = `a.id, a.inc_no, DATE_FORMAT(a.inc_dt, "%d/%m/%Y %h:%i:%s %p") inc_dt, b.incident_name inc_type_name, a.inc_name, c.offshore_name, c.location_name, c.offshore_latt latt, c.offshore_long o_long, d.tier_type initial_tier, a.inc_status, a.brief_desc, a.close_date, (SELECT f.tier_type FROM md_tier f WHERE a.final_tier_id=f.id) final_tier, a.closing_remarks, a.approval_status, e.emp_name created_by, DATE_FORMAT(a.created_at, "%d/%m/%Y %h:%i:%s %p") created_at, (SELECT g.emp_name FROM md_employee g WHERE a.approved_by=g.email) approved_by, a.approval_status, DATE_FORMAT(a.approved_at, "%d/%m/%Y %h:%i:%s %p") approved_at, (SELECT h.emp_name FROM md_employee h WHERE a.modified_by=h.email) modified_by, DATE_FORMAT(a.modified_at, "%d/%m/%Y %h:%i:%s %p") modified_at, (SELECT i.emp_name FROM md_employee i WHERE a.closed_by=i.email) closed_by, DATE_FORMAT(a.closed_at, "%d/%m/%Y %h:%i:%s %p") closed_at`,
-        whr = `a.inc_type_id=b.id AND a.inc_location_id=c.id AND a.initial_tier_id=d.id AND a.created_by=e.email AND DATE(a.inc_dt) >= "${frm_dt}" AND DATE(a.inc_dt) <= "${to_dt}" ${inc_whr}`,
+        whr = `a.inc_type_id=b.id AND a.inc_location_id=c.id AND a.initial_tier_id=d.id AND a.created_by=e.email AND DATE(a.inc_dt) >= "${frm_dt}" AND DATE(a.inc_dt) <= "${to_dt}" ${inc_whr} ${tier_whr}`,
         order = `ORDER BY a.inc_no DESC`;
     var dt = await F_Select(select, table_name, whr, order);
     res.send(dt);

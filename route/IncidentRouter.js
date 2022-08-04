@@ -14,7 +14,8 @@ IncidentRouter.get('/get_incident', async (req, res) => {
         is_approve = req.query.is_approve,
         table_name = 'td_incident',
         select = '*',
-        whr = id > 0 ? `id = ${id}` : (approval_flag ? `approval_flag = "${approval_flag}"` : (inc_no ? `inc_no = "${inc_no}"` : `inc_status = "${flag}"`));
+        whr = id > 0 ? `id = ${id}` : (approval_flag && approval_flag != 'null' ? `approval_status = "${approval_flag}"` : (inc_no ? `inc_no = "${inc_no}"` : (flag != 'C' ? `inc_status = "${flag}"` : `inc_status = "${flag}" AND approval_status!= 'A'`)));
+    // console.log(approval_flag, whr);
     var dt = await F_Select(select, table_name, whr, null),
         res_dt = inc_no ? (is_approve ? dt : (dt.msg.length > 0 ? (dt.msg[0].inc_status == 'O' ? dt : { suc: 2, msg: "Incident Is Already Closed" }) : { suc: 3, msg: "No Data Exist" })) : dt;
     res.send(res_dt);
