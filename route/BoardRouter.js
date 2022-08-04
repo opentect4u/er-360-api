@@ -6,7 +6,7 @@ const BoardRouter = express.Router();
 /////////////////////////////// ACTIVE INCIDENT DETAILS ///////////////////////////////////////
 BoardRouter.get('/get_active_inc', async (req, res) => {
     var table_name = 'td_incident a, md_location b, md_tier c, md_incident_type d',
-        select = 'a.id, a.inc_no, a.inc_name, a.brief_desc, b.offshore_name, b.offshore_latt as lat, b.offshore_long lon, c.tier_type, a.inc_dt, TIMESTAMPDIFF(HOUR,a.inc_dt, NOW()) as dif_time, d.incident_name incident_type, (SELECT COUNT(id) FROM td_casualty_board e WHERE a.id=e.inc_id) AS tot_casualty',
+        select = 'a.id, a.inc_no, a.inc_name, a.brief_desc, a.initial_tier_id, b.offshore_name, b.offshore_latt as lat, b.offshore_long lon, c.tier_type, a.inc_dt, TIMESTAMPDIFF(HOUR,a.inc_dt, NOW()) as dif_time, d.incident_name incident_type, (SELECT COUNT(id) FROM td_casualty_board e WHERE a.id=e.inc_id) AS tot_casualty',
         whr = `a.inc_location_id=b.id AND a.initial_tier_id=c.id AND a.inc_type_id=d.id AND a.inc_status = 'O'`,
         order = 'ORDER BY a.id';
     var dt = await F_Select(select, table_name, whr, order);
@@ -191,7 +191,7 @@ BoardRouter.post('/casualty_board', async (req, res) => {
 BoardRouter.get('/evacuation_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_evacuation_board',
-        select = 'id, inc_id, date, destination, mode_of_transport, pob_remaining, remarks, time',
+        select = 'id, inc_id, date, destination, dest_to, mode_of_transport, pob_remaining, remarks, time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -205,10 +205,10 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
     if (data.dt.length > 0) {
         data.dt.forEach(async dta => {
             var table_name = 'td_evacuation_board',
-                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", time = "${dta.time}", destination = "${dta.destination}",
+                fields = dta.id > 0 ? `date = "${datetime}", time = "${dta.time}", destination = "${dta.destination}", dest_to = "${dta.dest_to}",
                 mode_of_transport = "${dta.mode_of_transport}", pob_remaining = "${dta.pob_remaining}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, time, destination, mode_of_transport, pob_remaining, remarks, created_by, created_at)',
-                values = `("${data.inc_id}", "${datetime}", "${dta.time}", "${dta.destination}", "${dta.mode_of_transport}", "${dta.pob_remaining}", "${dta.remarks}",
+                    '(inc_id, date, time, destination, dest_to, mode_of_transport, pob_remaining, remarks, created_by, created_at)',
+                values = `("${data.inc_id}", "${datetime}", "${dta.time}", "${dta.destination}", "${dta.dest_to}", "${dta.mode_of_transport}", "${dta.pob_remaining}", "${dta.remarks}",
                 "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,

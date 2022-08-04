@@ -11,12 +11,12 @@ CallLogRouter.get('/get_ref_no', async (req, res) => {
         select = 'IF(MAX(id) > 0, MAX(id)+1, 1) AS ref_no',
         whr = null;
     var dt = await F_Select(select, table_name, whr, null);
-	var res_dt = '';
-	if(dt.suc > 0 && inc_id){
-		res_dt = {suc: 1, msg: inc_id + '-' + dt.msg[0].ref_no};
-	}else{
-		res_dt = dt;
-	}
+    var res_dt = '';
+    if (dt.suc > 0 && inc_id) {
+        res_dt = { suc: 1, msg: inc_id + '-' + dt.msg[0].ref_no };
+    } else {
+        res_dt = dt;
+    }
     res.send(res_dt);
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -25,9 +25,10 @@ CallLogRouter.get('/get_ref_no', async (req, res) => {
 // FETCH 
 CallLogRouter.get('/call_log', async (req, res) => {
     var id = req.query.id,
+        inc_id = req.query.inc_id,
         table_name = 'td_call_log',
         select = 'id, inc_id, ref_no, made_by, made_to, received_by, DATE_FORMAT(call_datetime, "%d/%m/%Y %h:%i:%s %p") AS call_datetime, call_datetime as call_dt, call_details',
-        whr = id > 0 ? `id = ${id} AND delete_flag = 'N'` : `delete_flag = 'N'`;
+        whr = id > 0 ? `id = ${id} AND delete_flag = 'N'` : `delete_flag = 'N' AND inc_id = ${inc_id}`;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
 })
@@ -95,4 +96,4 @@ CallLogRouter.post('/approve_call_log', async (req, res) => {
 })
 //////////////////////////////////////////////////////////////////////////////////
 
-module.exports = {CallLogRouter}
+module.exports = { CallLogRouter }

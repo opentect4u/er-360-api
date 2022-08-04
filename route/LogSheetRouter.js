@@ -8,9 +8,10 @@ const LogsheetRouter = express.Router();
 /////////////////////////////// FETCH MANUAL LOG DATA ///////////////////////////////////////
 LogsheetRouter.get('/manuallog', async (req, res) => {
     var id = req.query.id,
+        inc_id = req.query.inc_id,
         table_name = 'td_activity',
         select = 'id, inc_id, act_by, DATE_FORMAT(act_at, "%d/%m/%Y %h:%i:%s %p") act_at_dt, act_at, act_type, activity',
-        whr = id > 0 ? `id = ${id} AND act_type = "W"` : 'act_type = "W"';
+        whr = id > 0 ? `id = ${id} AND act_type = "W"` : `act_type = "W" AND inc_id = ${inc_id}`;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
 })
@@ -20,7 +21,7 @@ LogsheetRouter.post('/manuallog', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
     var table_name = 'td_activity',
-        fields = data.id > 0 ? `act_by = "${data.act_by}", act_at = "${data.act_at}", act_type = "${data.act_type}", activity = "${data.activity}"` :
+        fields = data.id > 0 ? `inc_id = "${data.inc_id}", act_by = "${data.act_by}", act_at = "${data.act_at}", act_type = "${data.act_type}", activity = "${data.activity}"` :
             '(inc_id, act_by, act_at, act_type, activity)',
         values = `("${data.inc_id}", "${data.act_by}", "${data.act_at}", "${data.act_type}", "${data.activity}")`,
         whr = `id = ${data.id}`,
