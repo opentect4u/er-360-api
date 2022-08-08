@@ -18,7 +18,7 @@ BoardRouter.get('/get_active_inc', async (req, res) => {
 BoardRouter.get('/inc_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_board',
-        select = 'id, inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, time',
+        select = 'id, inc_id, date, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, time, people, env, asset, reputation',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -34,12 +34,12 @@ BoardRouter.post('/inc_board', async (req, res) => {
         data.dt.forEach(async dt => {
             var table_name = 'td_inc_board',
                 fields = dt.id > 0 ? `inc_id = "${data.inc_id}", date = "${date}", time = "${dt.time_inc}", installation = "${data.installation}", 
-                coordinates = "${data.coordinates}", visibility = "${dt.visibility}", wind_speed = "${dt.wind_speed}", 
+                coordinates = "${data.coordinates}", visibility = "${dt.visibility}", visibility_unit = "${dt.visibility_unit}", wind_speed = "${dt.wind_speed}", wind_speed_unit = "${dt.wind_speed_unit}",
                 wind_direc = "${dt.wind_direc}", sea_state = "${dt.sea_state}", temp = "${dt.temp}", temp_unit = "${dt.temp_unit}", summary = "${data.summary}",
-                status = "${data.status}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, time, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, created_by, created_at)',
-                values = `("${data.inc_id}", "${date}", "${dt.time_inc}", "${data.installation}", "${data.coordinates}", "${dt.visibility}", 
-                "${dt.wind_speed}", "${dt.wind_direc}", "${dt.sea_state}", "${dt.temp}", "${dt.temp_unit}", "${data.summary}", "${data.status}", "${data.user}", "${datetime}")`,
+                status = "${data.status}", people = "${data.people}", env = "${data.env}", asset = "${data.asset}", reputation = "${data.reputation}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    '(inc_id, date, time, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, people, env, asset, reputation, created_by, created_at)',
+                values = `("${data.inc_id}", "${date}", "${dt.time_inc}", "${data.installation}", "${data.coordinates}", "${dt.visibility}", "${dt.visibility_unit}",
+                "${dt.wind_speed}", "${dt.wind_speed_unit}", "${dt.wind_direc}", "${dt.sea_state}", "${dt.temp}", "${dt.temp_unit}", "${data.summary}", "${data.status}", "${data.people}", "${data.env}", "${data.asset}", "${data.reputation}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dt.id}`,
                 flag = dt.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
@@ -60,7 +60,7 @@ BoardRouter.post('/inc_board', async (req, res) => {
 BoardRouter.get('/vessel_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_vessel_board',
-        select = 'id, inc_id, date, vessel_name, vessel_type, form_at, etd, to_at, eta, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, vessel_name, vessel_type, form_at, etd, to_at, eta, time_to_location, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -76,10 +76,10 @@ BoardRouter.post('/vessel_board', async (req, res) => {
             var table_name = 'td_vessel_board',
                 fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", vessel_name = "${dta.vessel_name}",
                 vessel_type = "${dta.vessel_type}", form_at = "${dta.form_at}", etd = "${dta.etd}",
-                to_at = "${dta.to_at}", eta = "${dta.eta}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, vessel_name, vessel_type, form_at, etd, to_at, eta, remarks, created_by, created_at)',
+                to_at = "${dta.to_at}", eta = "${dta.eta}", time_to_location = "${dta.time_to_location}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    '(inc_id, date, vessel_name, vessel_type, form_at, etd, to_at, eta, time_to_location, remarks, created_by, created_at)',
                 values = `("${data.inc_id}", "${datetime}", "${dta.vessel_name}", "${dta.vessel_type}", "${dta.form_at}",
-                "${dta.etd}", "${dta.to_at}", "${dta.eta}", "${dta.remarks}", "${data.user}", "${datetime}")`,
+                "${dta.etd}", "${dta.to_at}", "${dta.eta}", "${dta.time_to_location}", "${dta.remarks}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
@@ -100,7 +100,7 @@ BoardRouter.post('/vessel_board', async (req, res) => {
 BoardRouter.get('/helicopter_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_helicopter_board',
-        select = 'id, inc_id, date, call_sign, heli_type, form_at, etd, to_at, eta, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, call_sign, heli_type, form_at, etd, to_at, eta, time_to_location, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -116,10 +116,10 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
             var table_name = 'td_helicopter_board',
                 fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", call_sign = "${dta.call_sign}",
                 heli_type = "${dta.heli_type}", form_at = "${dta.form_at}", etd = "${dta.etd}",
-                to_at = "${dta.to_at}", eta = "${dta.eta}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, call_sign, heli_type, form_at, etd, to_at, eta, remarks, created_by, created_at)',
+                to_at = "${dta.to_at}", eta = "${dta.eta}", time_to_location = "${dta.time_to_location}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    '(inc_id, date, call_sign, heli_type, form_at, etd, to_at, eta, time_to_location, remarks, created_by, created_at)',
                 values = `("${data.inc_id}", "${datetime}", "${dta.call_sign}", "${dta.heli_type}", "${dta.form_at}",
-                "${dta.etd}", "${dta.to_at}", "${dta.eta}", "${dta.remarks}", "${data.user}", "${datetime}")`,
+                "${dta.etd}", "${dta.to_at}", "${dta.eta}", "${dta.time_to_location}", "${dta.remarks}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dta.id}`,
                 flag = dta.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
