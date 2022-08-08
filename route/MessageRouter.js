@@ -16,7 +16,7 @@ MessageRouter.get('/oldMessage', async (req, res) => {
         max = req.query.max,
         table_name = 'td_chat a, md_employee b',
         //select = `a.inc_id, CONCAT(IF(DATE(NOW()) = DATE(a.chat_dt), 'Today', DATE_FORMAT(a.chat_dt, "%d/%m/%Y")), ' ', DATE_FORMAT(a.chat_dt, "%h:%i:%s %p")) as chat_dt, a.employee_id, a.chat, b.emp_name`,
-        select = `a.inc_id, CONCAT(IF(DATE(NOW()) = DATE(a.chat_dt), 'Today', DATE_FORMAT(a.chat_dt, "%d/%m/%Y")), ' ', DATE_FORMAT(a.chat_dt, "%h:%i:%s %p")) as chat_dt, a.employee_id, a.chat, b.emp_name, a.file, IF(a.file != '', 1, 0) file_flag`,
+        select = `a.inc_id, CONCAT(IF(DATE(NOW()) = DATE(a.chat_dt), 'Today', DATE_FORMAT(a.chat_dt, "%d/%m/%Y")), ' ', DATE_FORMAT(a.chat_dt, "%h:%i")) as chat_dt, a.employee_id, a.chat, b.emp_name, a.file, IF(a.file != '', 1, 0) file_flag`,
         whr = `a.employee_id=b.employee_id AND a.inc_id=${inc_id > 0 ? inc_id : 0}`,
         group = `ORDER BY a.id DESC LIMIT ${min}, ${max}`;
     var dt = await F_Select(select, table_name, whr, group);

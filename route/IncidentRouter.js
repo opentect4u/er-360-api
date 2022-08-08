@@ -43,7 +43,7 @@ IncidentRouter.post('/create_incident', async (req, res) => {
         res_dt = flag > 0 ? dt : { suc: dt.suc, msg: dt.msg, inc_no };
     // CREATE REPOSITORY CATEGORY
     var repo_data = { catg_name: inc_no, user: data.user }
-    var create_repo_cat = await CreateRepositoryCategory(repo_data, datetime)
+    var create_repo_cat = flag == 0 ? await CreateRepositoryCategory(repo_data, datetime) : '';
     // END
     // dt.push({ inc_no })
     res.send(res_dt)

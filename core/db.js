@@ -6,7 +6,8 @@ const mysql = require('mysql');
 //     host: 'localhost',
 //     user: 'root',
 //     password: '',
-//     database: 'verm'
+//     database: 'verm',
+//     charset: 'utf8mb4'
 // });
 
 // SERVER
@@ -15,7 +16,8 @@ const db = mysql.createPool({
     host: 'localhost',
     user: 'er-360-user',
     password: 'Er-360-user@123',
-    database: 'er-360'
+    database: 'er-360',
+    charset: 'utf8mb4'
 });
 
 db.getConnection((err, connection) => {

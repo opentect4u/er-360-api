@@ -10,10 +10,10 @@ RepoRouter.use(upload());
 /////////////////// REPOSITORY CATEGORY /////////////////
 RepoRouter.get('/repository_category', async (req, res) => {
     var flag = req.query.flag,
-		table_name = 'md_repository_category',
+        table_name = 'md_repository_category',
         select = 'id, catg_name, DATE_FORMAT(created_at, "%d/%m/%Y %h:%i:%s %p") AS created_at, created_by',
         whr = `delete_flag = 'N'`,
-		order = flag == 'D' ? `ORDER BY created_at DESC` :(flag == 'N' ? `ORDER BY catg_name` : null);
+        order = flag == 'D' ? `ORDER BY created_at DESC` : (flag == 'N' ? `ORDER BY catg_name` : null);
     var dt = await F_Select(select, table_name, whr, order);
     res.send(dt);
 })
@@ -45,7 +45,7 @@ const CreateRepositoryCategory = async (data, datetime) => {
 
 RepoRouter.get('/repository_category_del', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
-	var res_dt = '';
+    var res_dt = '';
     var data = req.query;
     //var table_name = 'md_form_category',
     //    fields = `delete_flag = "Y", modified_by = "${data.user}", modified_at = "${datetime}"`,
@@ -54,28 +54,28 @@ RepoRouter.get('/repository_category_del', async (req, res) => {
     //    flag = 1;
 
     var table_name = 'md_repository_category',
-		select = 'catg_name',
+        select = 'catg_name',
         select_whr = `id = ${data.id}`;
     var select_dt = await F_Select(select, table_name, select_whr, null);
-	var cat_name = select_dt.msg[0].catg_name;
-	cat_name = cat_name.split(' ').join('_');
-	var dir = 'assets/repository/' + cat_name;
-	fs.rmdir(dir, { recursive: true }, async (err) => {
+    var cat_name = select_dt.msg[0].catg_name;
+    cat_name = cat_name.split(' ').join('_');
+    var dir = 'assets/repository/' + cat_name;
+    fs.rmdir(dir, { recursive: true }, async (err) => {
         if (err) {
-			res_dt = {suc: 0, msg: err};
-        }else{
-			var del_table_name = 'md_repository_category',
-				del_whr = `id = ${data.id}`,
-				del_cat = await F_Delete(del_table_name, del_whr);
-			var del_file_table_name = 'td_repository',
-				del_file_whr = `catg_id = ${data.id}`,
-				del_file = await F_Delete(del_file_table_name, del_file_whr);
-			var user_id = data.user,
-				act_type = 'D',
-				activity = `A Repository Category Named, ${select_dt.msg[0].catg_name} IS DELETED By ${user_id} At ${datetime}`;
-			var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-			res_dt = {suc: 1, msg: 'Deleted Successfully!!'};
-		}
+            res_dt = { suc: 0, msg: err };
+        } else {
+            var del_table_name = 'md_repository_category',
+                del_whr = `id = ${data.id}`,
+                del_cat = await F_Delete(del_table_name, del_whr);
+            var del_file_table_name = 'td_repository',
+                del_file_whr = `catg_id = ${data.id}`,
+                del_file = await F_Delete(del_file_table_name, del_file_whr);
+            var user_id = data.user,
+                act_type = 'D',
+                activity = `A Repository Category Named, ${select_dt.msg[0].catg_name} IS DELETED By ${user_id} At ${datetime}`;
+            var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+            res_dt = { suc: 1, msg: 'Deleted Successfully!!' };
+        }
         res.send(del_cat);
     });
 })
@@ -84,8 +84,8 @@ RepoRouter.get('/repository_category_del', async (req, res) => {
 /////////////////// REPOSITORY /////////////////
 RepoRouter.get('/get_repository', async (req, res) => {
     var flag = req.query.flag,
-		catg_id = req.query.catg_id,
-		catg_id_con = catg_id ? `AND a.catg_id = "${catg_id}"` : '',
+        catg_id = req.query.catg_id,
+        catg_id_con = catg_id ? `AND a.catg_id = "${catg_id}"` : '',
         table_name = 'td_repository a, md_repository_category b',
         select = 'a.id, a.form_name, b.catg_name, a.form_path, DATE_FORMAT(a.created_at, "%d/%m/%Y %h:%i:%s %p") AS created_at, a.created_by',
         whr = `a.catg_id=b.id AND a.delete_flag = 'N' ${catg_id_con}`,
