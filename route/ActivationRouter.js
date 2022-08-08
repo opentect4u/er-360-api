@@ -150,6 +150,17 @@ ActivationRouter.get('/get_active_status', async (req, res) => {
 })
 
 /////////////////////////////// HANDOVER ///////////////////////////////////////
+ActivationRouter.get('/handover', async (req, res) => {
+	var id = req.query.id,
+		inc_id = req.query.inc_id,
+		table_name = 'td_handover a, md_teams b',
+		select = `inc_id, header, b.team_name form_team, (SELECT c.team_name FROM md_teams c WHERE a.to_team=c.id) to_team, remarks`,
+		whr = id > 0 ? `a.form_team=b.id AND a.id = ${id}` : (inc_id > 0 ? `a.form_team=b.id AND a.inc_id = ${inc_id}` : ''),
+		group = null;
+	var dt = await F_Select(select, table_name, whr, group);
+	res.send(dt)
+})
+
 ActivationRouter.post('/handover', async (req, res) => {
 	var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
 	var data = req.body;
