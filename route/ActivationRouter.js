@@ -155,7 +155,7 @@ ActivationRouter.get('/handover', async (req, res) => {
 		inc_id = req.query.inc_id,
 		table_name = 'td_handover a, md_teams b, td_incident d',
 		select = `inc_id, d.inc_no, d.inc_name, header, b.team_name form_team, (SELECT c.team_name FROM md_teams c WHERE a.to_team=c.id) to_team, remarks`,
-		whr = id > 0 ? `a.form_team=b.id AND a.inc_id=d.id AND a.id = ${id}` : (inc_id > 0 ? `a.form_team=b.id AND a.inc_id=d.id AND a.inc_id = ${inc_id}` : ''),
+		whr = id > 0 ? `a.form_team=b.id AND a.inc_id=d.id AND a.id = ${id}` : (inc_id > 0 ? `a.form_team=b.id AND a.inc_id=d.id AND a.inc_id = ${inc_id}` : 'a.form_team=b.id AND a.inc_id=d.id'),
 		group = null;
 	var dt = await F_Select(select, table_name, whr, group);
 	res.send(dt)
