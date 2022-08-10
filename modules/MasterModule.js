@@ -37,7 +37,7 @@ const F_Insert = (table_name, fields, values, whr, flag) => {
                 console.log(err);
                 data = { suc: 0, msg: JSON.stringify(err) };
             } else {
-                data = { suc: 1, msg: msg };
+                data = { suc: 1, msg: msg, lastId };
             }
             resolve(data)
         })

@@ -34,6 +34,7 @@ const { UserRouter } = require('./route/UserRouter');
 const { RepoRouter } = require('./route/RepositoryRouter');
 const { ReportRouter } = require('./route/ReportRouter');
 const { DashboardRouter } = require('./route/DashboardRouter');
+const { LessonRouter } = require('./route/LessonLearntRouter');
 /////////////////////////////////////////////////////////////////////////
 
 app.use(AdmRouter);
@@ -63,6 +64,8 @@ app.use(RepoRouter);
 app.use(ReportRouter);
 
 app.use(DashboardRouter);
+
+app.use(LessonRouter)
 
 app.get('/', (req, res) => {
 	res.send('Welcome');
