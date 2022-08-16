@@ -26,6 +26,31 @@ ReportRouter.get('/incident_report', async (req, res) => {
         whr = `a.inc_type_id=b.id AND a.inc_location_id=c.id AND a.initial_tier_id=d.id AND a.created_by=e.email AND DATE(a.inc_dt) >= "${frm_dt}" AND DATE(a.inc_dt) <= "${to_dt}" ${inc_whr} ${tier_whr}`,
         order = `ORDER BY a.inc_no DESC`;
     var dt = await F_Select(select, table_name, whr, order);
+    if (inc_id < 1 && tier_id < 1) {
+        var count_dt_whr = null,
+            count_dt_select = `SUM(tier1) tier1, SUM(tier2) tier2, SUM(tier3) tier3, SUM(near_mess) near_mess, SUM(open_inc) open_inc, SUM(close_inc) close_inc, SUM(archive_inc) archive_inc, SUM(total) total`,
+            count_dt_table_name = `(
+SELECT COUNT(id) tier1, 0 tier2, 0 tier3, 0 near_mess, 0 open_inc, 0 close_inc, 0 archive_inc, 0 total FROM td_incident WHERE final_tier_id = 1
+UNION
+SELECT 0 tier1, COUNT(id) tier2, 0 tier3, 0 near_mess, 0 open_inc, 0 close_inc, 0 archive_inc, 0 total FROM td_incident WHERE final_tier_id = 2
+UNION
+SELECT 0 tier1, 0 tier2, COUNT(id) tier3, 0 near_mess, 0 open_inc, 0 close_inc, 0 archive_inc, 0 total FROM td_incident WHERE final_tier_id = 3
+UNION
+SELECT 0 tier1, 0 tier2, 0 tier3, COUNT(id) near_mess, 0 open_inc, 0 close_inc, 0 archive_inc, 0 total FROM td_incident WHERE final_tier_id = 4
+UNION
+SELECT 0 tier1, 0 tier2, 0 tier3, 0 near_mess, COUNT(id) open_inc, 0 close_inc, 0 archive_inc, 0 total FROM td_incident WHERE inc_status = 'O'
+UNION
+SELECT 0 tier1, 0 tier2, 0 tier3, 0 near_mess, 0 open_inc, COUNT(id) close_inc, 0 archive_inc, 0 total FROM td_incident WHERE inc_status = 'C'
+UNION
+SELECT 0 tier1, 0 tier2, 0 tier3, 0 near_mess, 0 open_inc, 0 close_inc, COUNT(id) archive_inc, 0 total FROM td_incident WHERE approval_status = 'A'
+UNION
+SELECT 0 tier1, 0 tier2, 0 tier3, 0 near_mess, 0 open_inc, 0 close_inc, 0 archive_inc, COUNT(id) total FROM td_incident) a`,
+            count_dt_order = null;
+        var count_dt = await F_Select(count_dt_select, count_dt_table_name, count_dt_whr, count_dt_order)
+        dt['count_dt'] = count_dt.suc == 1 ? count_dt.msg[0] : null;
+    } else {
+        dt['count_dt'] = null
+    }
     res.send(dt);
     //`SELECT ${select} FROM ${table_name} ${whr}`
 })
