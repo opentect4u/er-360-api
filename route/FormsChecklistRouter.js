@@ -288,7 +288,7 @@ FormRouter.post('/lesson', async (req, res) => {
         if (Array.isArray(files)) {
             for (let file of files) {
                 fileName = file.name
-                filePath = subdir + '/' + fileName
+                filePath = 'uploads/lesson/' + fileName
                 file.mv(filePath, async (err) => {
                     if (err) {
                         console.log(`${fileName} not uploaded`);

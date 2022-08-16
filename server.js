@@ -220,7 +220,7 @@ io.on('connection', async function (socket) {
 			upload_status = fs.writeFileSync('assets/uploads/' + file_name, buffer)
 		}
 		var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
-		let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat, file) VALUES ("${data.inc_id}", "${datetime}", "${data.emp_id}", "${data.message}", "${file_name}")`;
+		let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat, file) VALUES ("${data.inc_id}", "${data.chat_dt}", "${data.emp_id}", "${data.message}", "${file_name}")`;
 		console.log(sql);
 		db.query(sql, (err) => {
 			if (err) console.log(err);
