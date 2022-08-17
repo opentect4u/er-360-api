@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Learnt</title>
+</head>
+<style>
+    body {
+        padding: 25px;
+    }
+
+    .heading {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .container {
+        padding-top: 20px;
+    }
+
+    .content {
+        padding: 0 40px 0 30px;
+    }
+
+    .img-content {
+        padding: 25px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .img-content img {
+        padding: 2px;
+        border: black solid 2px;
+        margin-right: 5px;
+        max-height: 250px;
+        width: 250px;
+    }
+
+    .suffix {
+        float: right;
+        padding-left: 5px;
+    }
+
+    .tb-centent {
+        padding-left: 10px;
+    }
+</style>
+
+<body>
+    <div>
+        <table>
+            <tr>
+                <td class="heading">Refference No<span class="suffix">:</span></td>
+                <td class="tb-centent">{{reff_no}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Title<span class="suffix">:</span></td>
+                <td class="tb-centent">{{title}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Date<span class="suffix">:</span></td>
+                <td class="tb-centent">{{date}}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="container">
+        <label class="heading">Description of Incident: </label>
+        <p class="content">{{description}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Recommendations: </label>
+        <p class="content">{{recom}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Pictures:</label>
+        <div class="img-content">
+            {{#each img}}
+            <img src='{{this.path}}' alt="">
+            {{/each}}
+        </div>
+    </div>
+</body>
+
+</html>
