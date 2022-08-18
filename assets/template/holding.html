@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holding Statement</title>
+</head>
+<style>
+    body {
+        padding: 25px;
+    }
+
+    .heading {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .container {
+        padding-top: 20px;
+    }
+
+    .content {
+        padding: 0 40px 0 30px;
+    }
+
+    .suffix {
+        float: right;
+        padding-left: 5px;
+    }
+
+    .tb-centent {
+        padding-left: 10px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .table-container {
+        padding: 30px 40px 0 30px;
+    }
+</style>
+
+<body>
+    <div class="table-container">
+        <table>
+            <tr>
+                <td class="heading">Holding Statement No<span class="suffix">:</span></td>
+                <td class="tb-centent">{{sta_no}}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="container">
+        <p class="text-center">{{date}} At {{time}}</p>
+        <p class="content">{{wishers_name}} wishes to inform that a {{inc_name}} has occurred on {{inc_date}} at {{inc_time}}
+            located in at {{inc_location}}.</p>
+        <p class="content">Our Emergency Response Team has been mobilized to contain the incident and is working closely
+            with {{description}}. All
+            other relevant authorities have been informed. Our utmost priority and concern is the safety of the people
+            and
+            environment at the moment.</p>
+        <p class="content">We will provide additional information in due course as the investigation is still being
+            carried out.</p>
+        <p class="content">For further inquiries, please contact {{contact_person}}.</p>
+    </div>
+    <div class="table-container">
+        <table>
+            <tr>
+                <td class="heading">Issued By<span class="suffix">:</span></td>
+            </tr>
+            <tr>
+                <td class="heading">Name<span class="suffix">:</span></td>
+                <td class="tb-centent">{{issued_by}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Contact Information<span class="suffix">:</span></td>
+                <td class="tb-centent">{{contact_info}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Date<span class="suffix">:</span></td>
+                <td class="tb-centent">{{issued_date}}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
