@@ -47,27 +47,8 @@ const MakePDF = async (template, upload_path, file_data, header) => {
 }
 
 LessonRouter.get('/lalala', async (req, res) => {
-    var data = { id: 4, inc_no: 202210, inc_id: 4, reff_no: 'TEST REF 18 AUG 2022' }
-    var template = "assets/template/lesson.html"
-    var upload_path = `assets/repository/${data.inc_no}/lesson_learnt_${data.inc_id}_${data.reff_no.split('/').join('-').split(' ').join('-')}.pdf`
-    var table_name = 'td_lesson a',
-        select = `a.id, a.reff_no, a.title, date_format(a.date, '%d/%m/%Y') date, a.description, a.recom, IF((SELECT COUNT(c.id) FROM td_lesson_file c WHERE a.id=c.lesson_id AND a.inc_id=c.inc_id) > 0, 1, 0) isFile`,
-        where = `a.id = "${data.id}"`,
-        order = null;
-    var file_data = await F_Select(select, table_name, where, order);
-    file_data = file_data.suc > 0 ? file_data.msg[0] : null
-    if (file_data.isFile > 0) {
-        table_name = 'td_lesson_file'
-        select = `id, CONCAT("${server_url}", file_path) path`
-        where = `lesson_id = "${data.id}"`
-        order = null
-        var img_data = await F_Select(select, table_name, where, order);
-        file_data['img'] = img_data.suc > 0 ? img_data.msg : null
-    } else {
-        file_data['img'] = null
-    }
-    var dt = await MakePDF(template, upload_path, file_data, header = 'Lesson Learnt')
-    res.send(dt)
+    // var html = fs.readFileSync('assets/Form.pdf', "utf8");
+    // console.log(html);
 })
 
 LessonRouter.get('/lesson', async (req, res) => {

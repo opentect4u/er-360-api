@@ -170,7 +170,7 @@ io.on('connection', async function (socket) {
 		db.query(sql, (err, result) => {
 			socket.emit('active_user', { users: result });
 		})
-	}, 10000);
+	}, 1000000);
 
 	setInterval(function () {
 		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
@@ -179,7 +179,7 @@ io.on('connection', async function (socket) {
 			// console.log(result);
 			socket.emit('user_status', { users: result });
 		})
-	}, 10000);
+	}, 1000000);
 
 	socket.on('join', (data) => {
 		console.log(`${data.user} join the room ${data.room}`);
