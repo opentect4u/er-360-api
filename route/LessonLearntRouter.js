@@ -49,6 +49,17 @@ const MakePDF = async (template, upload_path, file_data, header) => {
 LessonRouter.get('/lalala', async (req, res) => {
     // var html = fs.readFileSync('assets/Form.pdf', "utf8");
     // console.log(html);
+
+    // const PDFDocument = require('pdfkit');
+    // const doc = new PDFDocument;
+
+    // doc.pipe(fs.createWriteStream('/path/to/file.pdf')); // write to PDF
+    // doc.pipe(res);                                       // HTTP response
+
+    // // add stuff to PDF here using methods described below...
+
+    // // finalize the PDF and end the stream
+    // doc.end();
 })
 
 LessonRouter.get('/lesson', async (req, res) => {

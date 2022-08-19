@@ -8,8 +8,8 @@ const { SaveLessonFinal, MakePDF } = require('./LessonLearntRouter');
 const FormRouter = express.Router();
 FormRouter.use(upload());
 
-var server_url = 'http://localhost:3000/'
-// var server_url = 'https://api.er-360.com/'
+// var server_url = 'http://localhost:3000/'
+var server_url = 'https://api.er-360.com/'
 
 /////////////////// GET CATEGORY OF FORMS /////////////////
 FormRouter.get('/form_category', async (req, res) => {
@@ -415,7 +415,6 @@ const lessonFileSaveFinal = async (data, files) => {
             } else {
                 fileName = files.name
                 filePath = 'uploads/lesson/' + fileName
-                filePaths.push({ path: server_url + filePath })
                 files.mv('assets/' + filePath, async (err) => {
                     if (err) {
                         console.log(`${fileName} not uploaded`);
@@ -480,6 +479,55 @@ FormRouter.post('/lesson_final', async (req, res) => {
         res_dt = await lessonFileSaveFinal(data, files)
     }
     res.send(res_dt)
+})
+
+FormRouter.post('/oil_spill_file', async (req, res) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
+    var files = req.files ? (req.files.file ? req.files.file : null) : null,
+        data = req.body;
+    var dir = 'assets/repository',
+        subdir = dir + '/' + data.inc_no,
+        sub_subdir = subdir + '/oil_spill';
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    } else if (!fs.existsSync(sub_subdir)) {
+        fs.mkdirSync(sub_subdir);
+    }
+
+    if (files) {
+        var fileName = data.inc_no + '_' + files.name.split(' ').join('_'),
+            filePath = 'repository/' + data.inc_no + '/oil_spill/' + fileName
+        files.mv('assets/' + filePath, async (err) => {
+            if (err) {
+                console.log(`${fileName} not uploaded`);
+            } else {
+                console.log(`Successfully ${fileName} uploaded`);
+
+                table_name = 'md_repository_category'
+                var select = `id, catg_name`
+                where = `catg_name = "${data.inc_no}"`
+                var order = null
+                var dt = await F_Select(select, table_name, where, order);
+                var repo_id = dt.suc > 0 ? dt.msg[0].id : null
+
+                var table_name = 'td_repository',
+                    fields = `(catg_id, form_name, form_path, created_by, created_at)`,
+                    values = `("${repo_id}", "Oil Spill Modelling Form", "${filePath}", "${data.user}", "${datetime}")`,
+                    where = null,
+                    flag = 0;
+                var r_dt = await F_Insert(table_name, fields, values, where, flag)
+
+                table_name = 'td_oilspill_file'
+                fields = '(inc_id, file_path, created_by, created_at)'
+                values = `("${data.inc_id}", "${filePath}", "${data.user}", "${datetime}")`
+                where = null
+                flag = 0
+                var res_dt = await F_Insert(table_name, fields, values, where, flag)
+                res.send(res_dt)
+                // await SectionImageSave(data, filename);
+            }
+        })
+    }
 })
 
 module.exports = { FormRouter, lesson_file_save };

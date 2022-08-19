@@ -1,0 +1,112 @@
+ALTER TABLE `td_inc_board` ADD `temp_unit` ENUM('C','F') NOT NULL AFTER `temp`;
+ALTER TABLE `td_inc_board` CHANGE `temp_unit` `temp_unit` ENUM('C','F') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'C' COMMENT 'C -> Celsius; F-> Fahrenheit';
+
+/active_emp_dashboard
+GROUP BY a.inc_id, e.id
+
+/inc_board
+UPDATE: , temp_unit = "${dt.temp_unit}"
+INSERT: , temp_unit
+	, "${dt.temp_unit}"
+
+/activation_team
+Create new function
+
+29-07-2022
+server.js
+setInterval(function () {
+		for (let user of user_data) {
+			let sql = ''
+			let sql1 = ''
+			if (user.emp_code == 1) {
+				sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND admin = 'Y' GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
+				sql1 = `SELECT COUNT(id) total FROM (SELECT id FROM td_notification WHERE view_flag = 'N' AND admin = 'Y' GROUP BY TIME(created_at), activity) a`
+			} else {
+				sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND (user = ${user.emp_code} OR user = 0) GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
+				sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND (user = ${user.emp_code} OR user = 0)`
+			}
+			// console.log(sql);
+			db.query(sql, (err, result) => {
+				if (err) {
+					console.log(err);
+					socket.broadcast.to(user.s_id).emit('notification', err)
+				} else {
+					db.query(sql1, (error, res) => {
+						result.push({ total: res[0].total })
+						// console.log(result, res[0].total);
+						socket.broadcast.to(user.s_id).emit('notification', result)
+					})
+
+				}
+			})
+		}
+	}, 10000)
+
+socket notification
+
+userRouter.js
+/post_notification
+/notification GET
+/notification POST
+
+01-08-2022
+
+CREATE TABLE `verm`.`td_handover` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `header` VARCHAR(100) NOT NULL ,  `remarks` TEXT NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` DATETIME NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `td_handover` ADD `inc_id` INT(11) NOT NULL COMMENT 'td_incident -> id' AFTER `id`;
+
+ALTER TABLE `td_handover`  ADD `form_team` INT(11) NOT NULL  AFTER `header`,  ADD `to_team` INT(11) NOT NULL  AFTER `form_team`;
+ALTER TABLE `td_handover` CHANGE `form_team` `form_team` INT(11) NOT NULL COMMENT 'md_teams -> id';
+ALTER TABLE `td_handover` CHANGE `to_team` `to_team` INT(11) NOT NULL COMMENT 'md_teams -> id';
+
+04-08-2022
+
+ALTER TABLE `td_evacuation_board` ADD `time` TIME NOT NULL AFTER `date`;
+ALTER TABLE `td_events_log_board` ADD `time` TIME NOT NULL AFTER `date`;
+ALTER TABLE `td_inc_board` ADD `time` TIME NOT NULL AFTER `date`;
+ALTER TABLE `td_evacuation_board` ADD `dest_to` INT(11) NOT NULL AFTER `destination`;
+
+ALTER TABLE `td_prob_board` ADD `total_prob` INT(11) NOT NULL AFTER `value`;
+
+05-08-2022
+ALTER TABLE `td_inc_board` ADD `people` TEXT NULL DEFAULT NULL AFTER `status`, ADD `env` TEXT NULL DEFAULT NULL AFTER `people`, ADD `asset` TEXT NULL DEFAULT NULL AFTER `env`, ADD `reputation` TEXT NULL DEFAULT NULL AFTER `asset`;
+ALTER TABLE `td_inc_board` ADD `visibility_unit` ENUM('KM','NM') NOT NULL AFTER `visibility`;
+ALTER TABLE `td_inc_board` ADD `wind_speed_unit` ENUM('KM','NM') NOT NULL AFTER `wind_speed`;
+ALTER TABLE `td_helicopter_board` ADD `time_to_location` VARCHAR(50) NULL AFTER `eta`;
+ALTER TABLE `td_vessel_board` ADD `time_to_location` VARCHAR(50) NULL AFTER `eta`;
+ALTER TABLE `td_vessel_board` CHANGE `time_to_location` `time_to_location` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ETA-ETD';
+ALTER TABLE `td_helicopter_board` CHANGE `time_to_location` `time_to_location` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ETA-ETD';
+
+08-08-2022
+ALTER TABLE `md_employee` ADD `p_code` INT(11) NOT NULL AFTER `password`;
+ALTER TABLE `md_employee` ADD `er_code` INT(11) NOT NULL AFTER `personal_cnct_no`;
+
+10-08-2022
+CREATE TABLE `verm`.`td_lesson` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `reff_no` VARCHAR(50) NOT NULL ,  `title` VARCHAR(50) NOT NULL ,  `date` DATE NOT NULL ,  `description` TEXT NOT NULL ,  `recom` TEXT NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` DATETIME NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `td_lesson` ADD `inc_id` INT(11) NOT NULL AFTER `id`;
+CREATE TABLE `verm`.`td_lesson_file` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `lesson_id` INT(11) NOT NULL COMMENT 'td_lesson->id' ,  `inc_id` INT(11) NOT NULL ,  `file_name` TEXT NOT NULL ,  `file_path` TEXT NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` DATETIME NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+16-08-2022
+CREATE TABLE `verm`.`td_media_release` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `inc_id` INT(11) NOT NULL ,  `rel_no` VARCHAR(50) NOT NULL ,  `date` DATE NOT NULL ,  `time` TIME NOT NULL ,  `location` VARCHAR(100) NOT NULL ,  `description` TEXT NOT NULL ,  `contact_name` VARCHAR(100) NOT NULL ,  `contact_info` TEXT NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` INT NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `td_media_release` CHANGE `modified_at` `modified_at` DATETIME NULL DEFAULT NULL;
+
+17-08-2022
+ALTER TABLE `td_lesson` ADD `final_flag` ENUM('Y','N') NOT NULL DEFAULT 'N' AFTER `recom`;
+ALTER TABLE `td_lesson` ADD `final_by` VARCHAR(50) NULL AFTER `modified_at`, ADD `final_at` DATETIME NULL AFTER `final_by`;
+ALTER TABLE `td_lesson` ADD `pdf_location` VARCHAR(100) NULL DEFAULT NULL AFTER `final_flag`;
+ALTER TABLE `td_media_release` ADD `final_flag` ENUM('Y','N') NOT NULL DEFAULT 'N' AFTER `contact_info`, ADD `pdf_location` VARCHAR(100) NULL DEFAULT NULL AFTER `final_flag`;
+ALTER TABLE `td_media_release` ADD `final_by` VARCHAR(50) NULL AFTER `modified_at`, ADD `final_at` DATETIME NULL AFTER `final_by`;
+
+CREATE TABLE `er-360`.`td_holding` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `inc_id` INT(11) NOT NULL ,  `sta_no` VARCHAR(50) NOT NULL ,  `date` DATE NOT NULL ,  `time` TIME NOT NULL ,  `issued_by` VARCHAR(50) NOT NULL ,  `issued_date` DATE NOT NULL ,  `contact_info` VARCHAR(100) NOT NULL ,  `contact_person` VARCHAR(50) NOT NULL ,  `location` TEXT NOT NULL ,  `description` TEXT NOT NULL ,  `final_flag` ENUM('Y','N') NOT NULL DEFAULT 'N' ,  `pdf_location` VARCHAR(100) NULL DEFAULT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` DATETIME NULL DEFAULT NULL ,  `final_by` VARCHAR(50) NULL DEFAULT NULL ,  `final_at` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+18-08-2022
+ALTER TABLE `td_holding` ADD `wishers_name` VARCHAR(100) NOT NULL AFTER `time`;
+
+19-08-2022
+CREATE TABLE `er-360`.`td_oilspill_file` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `inc_id` INT(11) NOT NULL COMMENT 'td_incident -> id' ,  `repo_id` INT(11) NOT NULL COMMENT 'td_repository -> id' ,  `file_path` TEXT NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL DEFAULT NULL ,  `modified_by` VARCHAR(50) NULL DEFAULT NULL ,  `modified_at` DATETIME NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `td_oilspill_file` DROP `repo_id`;
+DROP TABLE `td_casualty_board`
+
+CREATE TABLE `er-360`.`td_casualty_board` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `inc_id` INT(11) NOT NULL ,  `inc_dt` DATETIME NOT NULL ,  `full_name` VARCHAR(100) NOT NULL ,  `employer` VARCHAR(100) NOT NULL ,  `created_by` VARCHAR(50) NULL DEFAULT NULL ,  `created_at` DATETIME NULL ,  `modified_by` VARCHAR(50) NULL ,  `modified_at` DATETIME NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+
+
