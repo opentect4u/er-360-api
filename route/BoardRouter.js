@@ -138,14 +138,6 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
 
 /////////////////////////////// CASULTY BOARD ///////////////////////////////////////
 BoardRouter.get('/casualty_board', async (req, res) => {
-    // var inc_id = req.query.inc_id,
-    //     table_name = 'td_casualty_board',
-    //     select = 'id, inc_id, date, full_name, employer, emp_condition, location, time',
-    //     whr = `inc_id = "${inc_id}"`,
-    //     order = `ORDER BY id DESC`;
-    // var dt = await F_Select(select, table_name, whr, order);
-    // res.send(dt);
-
     var inc_id = req.query.inc_id,
         table_name, select, whr, order;
 
@@ -429,11 +421,52 @@ BoardRouter.get('/delete_board', async (req, res) => {
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
             break;
+        case "9": // Incident Objectives BOARD
+            table_name = 'td_inc_obj_board'
+            whr = `id = ${id}`
+            resDt = await F_Delete(table_name, whr)
+            break;
         default:
             resDt = { suc: 0, msg: 'No Board Selected !!' }
             break;
     }
     res.send(resDt)
 })
+
+/////////////////////////////// PROB BOARD ///////////////////////////////////////
+BoardRouter.get('/inc_obj', async (req, res) => {
+    var inc_id = req.query.inc_id,
+        table_name = 'td_inc_obj_board',
+        select = `id, inc_id, op_period_from, op_period_to, obj_general, people, environment, assets, reputation, awareness`,
+        whr = `inc_id = ${inc_id}`,
+        order = `ORDER BY id DESC`;
+    var dt = await F_Select(select, table_name, whr, order)
+    res.send(dt)
+})
+
+BoardRouter.post('/inc_obj', async (req, res) => {
+    var data = req.body,
+        datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+        table_name, fields, values, whr, flag, flag_type, res_dt;
+    for (let dt of data.dt) {
+        table_name = 'td_inc_obj_board'
+        fields = dt.id > 0 ? `op_period_from = "${dt.op_period_from}", op_period_to = "${dt.op_period_to}", obj_general = "${dt.obj_general}", people = "${dt.people}", environment = "${dt.environment}", assets = "${dt.assets}", reputation = "${dt.reputation}", awareness = "${dt.awareness}", created_by = "${data.user}", created_at = "${datetime}"` :
+            '(inc_id, op_period_from, op_period_to, obj_general, people, environment, assets, reputation, awareness, created_by, created_at)'
+        values = `("${data.inc_id}", "${dt.op_period_from}", "${dt.op_period_to}", "${dt.obj_general}", "${dt.people}", "${dt.environment}", "${dt.assets}", "${dt.reputation}", "${dt.awareness}", "${data.user}", "${datetime}")`
+        whr = dt.id > 0 ? `id = ${dt.id}` : null
+        flag = dt.id > 0 ? 1 : 0
+        flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
+        let dt_save = await F_Insert(table_name, fields, values, whr, flag)
+        res_dt = {suc: dt_save.suc, mag: dt_save.msg}
+        if (dt_save.suc == 0) break;
+        let user_id = data.user
+        let act_type = flag > 0 ? 'M' : 'C'
+        let activity = `Incident Objective Board ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${datetime}.`
+        let activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
+    }
+    res.send(res_dt)
+})
+//////////////////////////////////////////////////////////////////////////////////
+
 
 module.exports = { BoardRouter };

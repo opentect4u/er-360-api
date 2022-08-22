@@ -100,9 +100,9 @@ ReportRouter.get('/board_report', async (req, res) => {
             dt = { suc: 1, msg: res_dt };
             break;
         case "5": // CASULTY BOARD
-            table_name = 'td_casualty_board a, td_incident b, md_employee c, md_location e';
-            select = `a.id, b.inc_no, DATE_FORMAT(a.date, "%d/%m/%Y %h:%i:%s %p") date, a.full_name, a.employer, a.emp_condition, e.offshore_name, e.location_name, e.offshore_latt, e.offshore_long, DATE_FORMAT(a.time, "%h:%i:%s %p") time, c.emp_name created_by, DATE_FORMAT(a.created_at, "%d/%m/%Y %h:%i:%s %p") created_at, (SELECT d.emp_name FROM md_employee d WHERE a.modified_by=d.email) modified_by, DATE_FORMAT(a.modified_at, "%d/%m/%Y %h:%i:%s %p") modified_at`;
-            whr = `a.inc_id=b.id AND a.created_by=c.email AND a.location=e.id AND a.inc_id = "${inc_id}"`;
+            table_name = 'td_casualty_board a';
+            select = `DATE_FORMAT(a.inc_dt, "%d/%m/%Y %h:%i:%s %p") date, a.full_name, (SELECT b.location FROM td_casualty_board_dt b WHERE b.board_id=a.id ORDER BY b.id DESC LIMIT 1) location, (SELECT b.emp_condition FROM td_casualty_board_dt b WHERE b.board_id=a.id ORDER BY b.id DESC LIMIT 1) emp_condition, (SELECT b.time FROM td_casualty_board_dt b WHERE b.board_id=a.id ORDER BY b.id DESC LIMIT 1) time`;
+            whr = `a.inc_id = "${inc_id}"`;
             order = 'ORDER BY a.id';
             dt = await F_Select(select, table_name, whr, order);
             break;
