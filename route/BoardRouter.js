@@ -138,12 +138,33 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
 
 /////////////////////////////// CASULTY BOARD ///////////////////////////////////////
 BoardRouter.get('/casualty_board', async (req, res) => {
+    // var inc_id = req.query.inc_id,
+    //     table_name = 'td_casualty_board',
+    //     select = 'id, inc_id, date, full_name, employer, emp_condition, location, time',
+    //     whr = `inc_id = "${inc_id}"`,
+    //     order = `ORDER BY id DESC`;
+    // var dt = await F_Select(select, table_name, whr, order);
+    // res.send(dt);
+
     var inc_id = req.query.inc_id,
-        table_name = 'td_casualty_board',
-        select = 'id, inc_id, date, full_name, employer, emp_condition, location, time',
-        whr = `inc_id = "${inc_id}"`,
-        order = `ORDER BY id DESC`;
+        table_name, select, whr, order;
+
+    table_name = 'td_casualty_board'
+    select = 'id, inc_id, inc_dt, full_name, employer'
+    whr = `inc_id = "${inc_id}"`
+    order = `ORDER BY id DESC`
     var dt = await F_Select(select, table_name, whr, order);
+    if (dt.suc > 0 && dt.msg.length > 0) {
+        for (let c_dt of dt.msg) {
+            table_name = 'td_casualty_board_dt'
+            select = 'id, inc_id, board_id, emp_condition, location, time'
+            whr = `board_id = ${c_dt.id} AND inc_id = "${inc_id}"`
+            order = `ORDER BY id DESC`
+            let e_dt = await F_Select(select, table_name, whr, order)
+            c_dt['casualtygrid'] = e_dt.msg
+        }
+    }
+
     res.send(dt);
 })
 
@@ -164,42 +185,50 @@ BoardRouter.post('/casualty_board', async (req, res) => {
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
 
-        console.log(data);
-
+        // console.log(data);
+        var table_name, fields, values, whr, flag, flag_type, res_dt;
         for (let c_dt of data.dt) {
-            var table_name = 'td_casualty_board',
-                fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", full_name = "${c_dt.full_name}",
-                employer = "${c_dt.employer}", emp_condition = "${c_dt.condition}",
-                location = "${c_dt.location}", time = "${c_dt.time}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, full_name, employer, emp_condition, location, time, created_by, created_at)',
-                values = `("${data.inc_id}", "${datetime}", "${c_dt.full_name}", "${c_dt.employer}", "${c_dt.condition}",
-                "${c_dt.location}", "${c_dt.time}", "${data.user}", "${datetime}")`,
-                whr = `id = ${c_dt.id}`,
-                flag = c_dt.id > 0 ? 1 : 0,
-                flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
+            table_name = 'td_casualty_board'
+            fields = c_dt.id > 0 ? `inc_id = "${data.inc_id}", inc_dt = "${datetime}", full_name = "${c_dt.full_name}", employer = "${c_dt.employer}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                `(inc_id, inc_dt, full_name, employer, created_by, created_at)`
+            values = `("${data.inc_id}", "${datetime}", "${c_dt.full_name}", "${c_dt.employer}", "${data.user}", "${datetime}")`
+            whr = `id = ${c_dt.id}`
+            flag = c_dt.id > 0 ? 1 : 0
+            flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
+            c_dt_save = await F_Insert(table_name, fields, values, whr, flag)
+            if (c_dt_save.suc > 0) {
+                let c_id = c_dt_save.lastId.insertId
+                let condition = ''
+                for (let e_dt of c_dt.casualtygrid) {
+                    table_name = 'td_casualty_board_dt'
+                    fields = c_dt.id > 0 ? `emp_condition = "${e_dt.emp_condition}", location = "${e_dt.location}", time = "${e_dt.time}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                        `(inc_id, board_id, emp_condition, location, time, created_by, created_at)`
+                    values = `("${data.inc_id}", "${c_id}", "${e_dt.emp_condition}", "${e_dt.location}", "${e_dt.time}", "${data.user}", "${datetime}")`
+                    whr = `id = ${e_dt.id}`
+                    flag = c_dt.id > 0 ? 1 : 0
+                    flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
+                    e_dt_save = await F_Insert(table_name, fields, values, whr, flag)
+                    if (e_dt_save.suc > 0) {
+                        res_dt = { suc: e_dt_save.suc, msg: e_dt_save.msg }
+                        condition = e_dt.emp_condition
+                    } else {
+                        res_dt = { suc: e_dt_save.suc, msg: e_dt_save.msg };
+                        break;
+                    }
+                }
+                let user_id = data.user
+                let act_type = flag > 0 ? 'M' : 'C'
+                let activity = `Casualty Board ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${datetime}. Employee: ${c_dt.full_name}, Condition: ${condition} Time: ${time}`
+                let activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
+            } else {
+                res_dt = { suc: c_dt_save.suc, msg: c_dt_save.msg }
+                break;
+            }
         }
-
-        // data.dt.forEach(async dta => {
-        //     var table_name = 'td_casualty_board',
-        //         fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", full_name = "${dta.full_name}",
-        //         employer = "${dta.employer}", emp_condition = "${dta.condition}",
-        //         location = "${dta.location}", time = "${dta.time}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-        //             '(inc_id, date, full_name, employer, emp_condition, location, time, created_by, created_at)',
-        //         values = `("${data.inc_id}", "${datetime}", "${dta.full_name}", "${dta.employer}", "${dta.condition}",
-        //         "${dta.location}", "${dta.time}", "${data.user}", "${datetime}")`,
-        //         whr = `id = ${dta.id}`,
-        //         flag = dta.id > 0 ? 1 : 0,
-        //         flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
-
-        //     var user_id = data.user,
-        //         act_type = flag > 0 ? 'M' : 'C',
-        //         activity = `Casualty Board ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${datetime}. Employee: ${dta.full_name}, Condition: ${dta.condition} Time: ${time}`;
-        //     var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
-
-        //     res_data = await F_Insert(table_name, fields, values, whr, flag);
-        // })
+        res.send(res_dt)
+    } else {
+        res_dt = { suc: 0, msg: 'Please Fill All Fields Before Submit!!' }
     }
-    res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -392,6 +421,11 @@ BoardRouter.get('/delete_board', async (req, res) => {
             break;
         case "7": // EVENT LOG BOARD
             table_name = 'td_events_log_board'
+            whr = `id = ${id}`
+            resDt = await F_Delete(table_name, whr)
+            break;
+        case "8": // CASUALTY BOARD DT
+            table_name = 'td_casualty_board_dt'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
             break;
