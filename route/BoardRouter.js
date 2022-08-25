@@ -433,7 +433,7 @@ BoardRouter.get('/delete_board', async (req, res) => {
     res.send(resDt)
 })
 
-/////////////////////////////// PROB BOARD ///////////////////////////////////////
+/////////////////////////////// INCIDENT OBJECTIVE ///////////////////////////////////////
 BoardRouter.get('/inc_obj', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_obj_board',
@@ -457,7 +457,7 @@ BoardRouter.post('/inc_obj', async (req, res) => {
         flag = dt.id > 0 ? 1 : 0
         flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
         let dt_save = await F_Insert(table_name, fields, values, whr, flag)
-        res_dt = {suc: dt_save.suc, mag: dt_save.msg}
+        res_dt = { suc: dt_save.suc, mag: dt_save.msg }
         if (dt_save.suc == 0) break;
         let user_id = data.user
         let act_type = flag > 0 ? 'M' : 'C'
@@ -465,6 +465,18 @@ BoardRouter.post('/inc_obj', async (req, res) => {
         let activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
     }
     res.send(res_dt)
+})
+//////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////// WEEKLY MEETING ///////////////////////////////////////
+BoardRouter.get('/meeting', async (req, res) => {
+    var id = req.query.id,
+        table_name = 'td_weekly_meeting',
+        select = `id, inc_id, date, ref_no, handover_date, handover_by, handover_to, attended_by, ongoing_act, upcoming_act, logistics, shore_act, others, file_path, final_flag`,
+        whr = id > 0 ? `id = ${id}` : null,
+        order = `ORDER BY id DESC`;
+    var dt = await F_Select(select, table_name, whr, order)
+    res.send(dt)
 })
 //////////////////////////////////////////////////////////////////////////////////
 

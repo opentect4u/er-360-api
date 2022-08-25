@@ -28,7 +28,7 @@ MessageRouter.get('/get_chat_log', async (req, res) => {
     var frm_dt = req.query.frm_dt,
         to_dt = req.query.to_dt,
         inc_id = req.query.inc_id;
-    var body = '<body>';
+    
     var table_name = 'td_chat a, md_employee b',
         select = `a.id, a.inc_id, CONCAT(IF(DATE(NOW()) = DATE(a.chat_dt), 'Today', DATE_FORMAT(a.chat_dt, "%d/%m/%Y")), ' ', DATE_FORMAT(a.chat_dt, "%h:%i:%s %p")) as chat_dt, a.employee_id, a.chat, b.emp_name, a.file, IF(a.file != '', 1, 0) file_flag`,
         whr = `a.employee_id=b.employee_id AND a.inc_id = ${inc_id} AND DATE(a.chat_dt) >= "${frm_dt}" AND DATE(a.chat_dt) <= "${to_dt}"`,
@@ -38,6 +38,8 @@ MessageRouter.get('/get_chat_log', async (req, res) => {
     //var sql = `SELECT a.id, a.inc_id, CONCAT(IF(DATE(NOW()) = DATE(a.chat_dt), 'Today', DATE_FORMAT(a.chat_dt, "%d/%m/%Y")), ' ', DATE_FORMAT(a.chat_dt, "%h:%i:%s %p")) as chat_dt, a.employee_id, a.chat, b.emp_name, a.file, IF(a.file != '', 1, 0) file_flag FROM td_chat a, md_employee b WHERE a.employee_id=b.employee_id AND a.inc_id = ${inc_id} AND DATE(a.chat_dt) >= "${frm_dt}" AND DATE(a.chat_dt) <= "${to_dt}" ORDER BY a.id`;
     // db.query(sql, (err, result) => {
     //     if (err) { console.log(err); }
+
+    var body = '<body>';
     if (result.length > 0) {
         for (let i = 0; i < result.length; i++) {
             body = body + '<div><label>' + result[i].emp_name + ' <small><i>' + result[i].chat_dt + '</i></small>:</label></div>'

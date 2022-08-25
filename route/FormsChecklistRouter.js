@@ -529,5 +529,71 @@ FormRouter.post('/oil_spill_file', async (req, res) => {
         })
     }
 })
+//////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////// WEEKLY MEETING ///////////////////////////////////////
+const meetingSave = (data, file_path) => {
+    return new Promise(async (resolve, reject) => {
+        var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"), res_dt;
+
+        // IS FILE UPLOADED CHECK AND SET DB VALUES 
+        var file_update = data.id > 0 ? (file_path ? `, file_path = "${file_path}"` : '') : (file_path ? `, "${file_path}"` : ''),
+            file_field = file_path ? ', file_path' : ''
+
+        // IS FINAL FLAG 'Y' CHECK AND SET DB VALUES 
+        var final_fields = data.final_flag == 'Y' ? `, final_by, final_at` : '',
+            final_val = data.id > 0 ? (data.final_flag == 'Y' ? `, final_flag = "${data.final_flag}", final_by = "${data.user}", final_at = "${datetime}"` : '') : (data.final_flag == 'Y' ? `, "${data.user}", "${datetime}"` : '');
+
+        var table_name = `td_weekly_meeting`,
+            fields = data.id > 0 ? `date = "${data.date}", ref_no = "${data.ref_no}", handover_date = "${data.handover_date}", handover_by = "${data.handover_by}", handover_to = "${data.handover_to}", attended_by = "${data.attended_by}", ongoing_act = "${data.ongoing_act}", upcoming_act = "${data.upcoming_act}", logistics = "${data.logistics}", shore_act = "${data.shore_act}", others = "${data.others}", modified_by = "${data.user}", modified_at = "${datetime}" ${file_update} ${final_val}` :
+                `(inc_id, date, ref_no, handover_date, handover_by, handover_to, attended_by, ongoing_act, upcoming_act, logistics, shore_act, others, final_flag, created_by, created_at ${file_field} ${final_fields})`,
+            values = `("${data.inc_id}", "${data.date}", "${data.ref_no}", "${data.handover_date}", "${data.handover_by}", "${data.handover_to}", "${data.attended_by}", "${data.ongoing_act}", "${data.upcoming_act}", "${data.logistics}", "${data.shore_act}", "${data.others}", "${data.final_flag}", "${data.user}", "${datetime}" ${file_update} ${final_val})`,
+            whr = data.id > 0 ? `id = ${data.id} ` : null,
+            flag = data.id > 0 ? 1 : 0,
+            flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
+        res_dt = await F_Insert(table_name, fields, values, whr, flag);
+
+        var user_id = data.user,
+            act_type = flag > 0 ? 'M' : 'C',
+            activity = `Weekly Meeting Board ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${data.date}.`,
+            activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
+        resolve(res_dt)
+    })
+}
+
+FormRouter.post('/meeting', async (req, res) => {
+    var data = req.body,
+        files = req.files ? (req.files.file ? req.files.file : null) : null,
+        file_path = null, res_dt;
+
+    var dir = 'assets/uploads',
+        subdir = dir + '/weekly_meeting';
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    }
+
+    if (files) {
+        var fileName = files.name.split(' ').join('_').split('-').join('_'),
+            file_path = 'uploads/weekly_meeting/' + fileName
+
+        files.mv('assets/' + file_path, async (err) => {
+            if (err) {
+                console.log(`${fileName} not uploaded`);
+                res_dt = { suc: 0, msg: `${fileName} not uploaded` }
+                res.send(res_dt)
+            } else {
+                console.log(`Successfully ${fileName} uploaded`);
+                res_dt = await meetingSave(data, file_path)
+                res.send(res_dt)
+            }
+        })
+    } else {
+        file_path = null
+        res_dt = await meetingSave(data, file_path)
+        res.send(res_dt)
+    }
+})
+
+//////////////////////////////////////////////////////////////////////////////////
 
 module.exports = { FormRouter, lesson_file_save };
