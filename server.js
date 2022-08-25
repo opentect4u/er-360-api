@@ -141,6 +141,11 @@ app.get('/test3', async (req, res) => {
 
 })
 
+app.get('/windy', (req, res) => {
+	const path = require('path')
+	res.sendFile(path.join(__dirname, 'assets/template/windy.html'))
+})
+
 const GetRes = (frm, to, inc_id) => {
 	let sql = `SELECT a.prob_cat_id, b.name as prob_cat, SUM(a.value) AS value FROM td_prob_board a, md_prob_category b WHERE a.prob_cat_id=b.id AND a.time >= '${frm}' AND a.time <= '${to}' AND a.inc_id = "${inc_id}" GROUP BY b.id ORDER BY b.id`;
 	return new Promise((resolve, reject) => {
