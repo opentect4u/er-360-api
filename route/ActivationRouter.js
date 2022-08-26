@@ -1,5 +1,5 @@
 const express = require('express');
-const { F_Insert, F_Select, F_Check, F_Delete, CreateActivity } = require('../modules/MasterModule');
+const { F_Insert, F_Select, F_Check, F_Delete, CreateActivity, MakeCall } = require('../modules/MasterModule');
 const dateFormat = require('dateformat');
 const { ActiveTeamMail } = require('../modules/EmailModule');
 const ActivationRouter = express.Router();
@@ -125,6 +125,8 @@ ActivationRouter.post('/activation_team', async (req, res) => {
 		act_type = flag > 0 ? 'M' : 'C'
 		activity = `A Team ${data.team_name} is ${flag_type} for the incident named ${data.inc_name} BY ${data.user} AT ${datetime}`;
 		activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+
+		await MakeCall(emp.emp_id, data.inc_name);
 
 		if (dt.suc == 0) break;
 	}

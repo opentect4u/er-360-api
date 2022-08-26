@@ -1,5 +1,8 @@
 const db = require('../core/db');
 const dateFormat = require('dateformat');
+require('dotenv').config();
+const Vonage = require('@vonage/server-sdk')
+const path = require('path')
 
 const F_Select = (select, table_name, whr, order) => {
     var tb_whr = whr ? `WHERE ${whr}` : '';
@@ -45,7 +48,7 @@ const F_Insert = (table_name, fields, values, whr, flag) => {
 }
 
 const F_Delete = (table_name, whr) => {
-	whr = whr ? `WHERE ${whr}` : '';
+    whr = whr ? `WHERE ${whr}` : '';
     var sql = `DELETE FROM ${table_name} ${whr}`;
     return new Promise((resolve, reject) => {
         db.query(sql, (err, lastId) => {
@@ -77,7 +80,7 @@ const F_Check = async (fields, table_name, whr) => {
 }
 
 const CreateActivity = async (user_id, datetime, act_type, activity, inc_id) => {
-	var incident_id = inc_id > 0 ? inc_id : 0;
+    var incident_id = inc_id > 0 ? inc_id : 0;
     var sql = `INSERT INTO td_activity (inc_id, act_by, act_at, act_type, activity) VALUES("${incident_id}", "${user_id}", "${datetime}", "${act_type}", "${activity}")`;
     return new Promise((resolve, reject) => {
         db.query(sql, (err, lastId) => {
@@ -109,4 +112,41 @@ const GetIncNo = async () => {
     })
 }
 
-module.exports = { F_Select, F_Insert, F_Delete, F_Check, CreateActivity, GetIncNo }
+const MakeCall = async (emp_id, inc_name) => {
+    var table_name = `md_employee`,
+        select = `id, emp_id, emp_name, p_code, personal_cnct_no, er_code, er_cnct_no, user_type`,
+        whr = `id = ${emp_id}`,
+        order = null;
+    var result = await F_Select(select, table_name, whr, order)
+    return new Promise((resolve, reject) => {
+        if (result.suc > 0) {
+            var message = result.msg[0].user_type == 'I' || result.msg[0].user_type == 'A' ? `An incident ${inc_name} has been occurred. You are assigned for this incident.` : `An incident ${inc_name} has been occurred. You are assigned for this incident. Please contact to your INCIDENT COMMANDER`
+            const vonage = new Vonage({
+                apiKey: process.env.VONAGE_API_KEY,
+                apiSecret: process.env.VONAGE_API_SECRET,
+                applicationId: process.env.VONAGE_APPLICATION_ID,
+                privateKey: path.join(__dirname, process.env.VONAGE_APPLICATION_PRIVATE_KEY_PATH)
+            })
+
+            vonage.calls.create({
+                to: [{
+                    type: 'phone',
+                    number: `"${result.msg[0].p_code}${result.msg[0].personal_cnct_no}"`
+                }],
+                from: {
+                    type: 'phone',
+                    number: process.env.VONAGE_NUMBER
+                },
+                ncco: [{
+                    "action": "talk",
+                    "text": message
+                }]
+            }, (error, response) => {
+                if (error) { console.error(error); resolve(error) }
+                if (response) { console.log(response); resolve(response) }
+            })
+        }
+    })
+}
+
+module.exports = { F_Select, F_Insert, F_Delete, F_Check, CreateActivity, GetIncNo, MakeCall }
