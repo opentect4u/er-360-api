@@ -15,9 +15,10 @@ LoginRouter.post('/admin_login', async (req, res) => {
     if (dt.msg.length > 0) {
         var db_pass = dt.msg[0].password;
         if (await bcrypt.compare(data.password, db_pass)) {
-            var status = 'Login';
+            var status = 'Login',
+                log_flag = 'I';
             var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
-            if (await UpdateUserLog(data.email, status)) {
+            if (await UpdateUserLog(data.email, log_flag, status)) {
                 res_dt = { suc: 1, msg: dt.msg };
             } else {
                 res_dt = { suc: 0, msg: "Something Went Wrong" }
@@ -43,9 +44,10 @@ LoginRouter.post('/login', async (req, res) => {
     if (dt.msg.length > 0) {
         var db_pass = dt.msg[0].password;
         if (await bcrypt.compare(data.password, db_pass)) {
-            var status = 'Login';
+            var status = 'Login',
+                log_flag = 'I';
             var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
-            if (await UpdateUserLog(data.email, status)) {
+            if (await UpdateUserLog(data.email, log_flag, status)) {
                 var ac_table_name = 'td_team_members a LEFT JOIN td_activation b ON a.team_id=b.team_id',
                     ac_select = 'COUNT(a.id) as active_flag',
                     ac_whr = `a.emp_id = ${dt.msg[0].id} AND (((SELECT c.from_date FROM td_team_log c WHERE c.team_id=b.team_id ORDER BY c.id DESC LIMIT 1) <= date(now()) AND (SELECT c.to_date FROM td_team_log c WHERE c.team_id=b.team_id ORDER BY c.id DESC LIMIT 1) >= date(now())) OR b.active_flag = 'Y')`;
@@ -70,6 +72,7 @@ LoginRouter.post('/log_out', async (req, res) => {
         id = data.id,
         user = data.user,
         status = 'O';
+    await UpdateUserLog(user, status, 'LogOut')
     var dt = await UpdateUserStatus(id, user, status);
     res.send(dt);
 })
@@ -77,8 +80,10 @@ LoginRouter.post('/log_out', async (req, res) => {
 /////////////////////////////// AFTER LOGIN/LOGOUT CHANGE USER STATUS ///////////////////////////////////////
 const UpdateUserStatus = async (id, user, status) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+    console.log(status);
     var table_name = 'md_employee',
-        fields = `user_status = "${status}", modified_by = "${user}", modified_at = "${datetime}"`,
+        log_value = status == 'L' ? `, login_dt = "${datetime}"` : `, logout_dt = "${datetime}"`,
+        fields = `user_status = "${status}", modified_by = "${user}", modified_at = "${datetime}" ${log_value}`,
         values = null,
         whr = `employee_id = ${id}`,
         flag = 1;
@@ -89,11 +94,11 @@ const UpdateUserStatus = async (id, user, status) => {
 }
 
 /////////////////////////////// STORE USER STATUS RECORDS ///////////////////////////////////////
-const UpdateUserLog = async (user_id, log_status) => {
+const UpdateUserLog = async (user_id, log_flag, log_status) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var table_name = 'td_user_log',
-        fields = '(user_id, date_time, log_status)',
-        values = `("${user_id}", "${datetime}", "${log_status}")`,
+        fields = '(user_id, date_time, log_flag, log_status)',
+        values = `("${user_id}", "${datetime}", "${log_flag}", "${log_status}")`,
         whr = null,
         flag = 0;
     var dt = await F_Insert(table_name, fields, values, whr, flag);

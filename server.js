@@ -175,16 +175,21 @@ io.on('connection', async function (socket) {
 		db.query(sql, (err, result) => {
 			socket.emit('active_user', { users: result });
 		})
-	}, 1000000);
+	}, 3000);
 
 	setInterval(function () {
 		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
-		var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img FROM md_employee a, td_team_members b, md_teams c, md_position d WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A' ORDER BY a.emp_name`;
+		var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
+		IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
+		FROM md_employee a, td_team_members b, md_teams c, md_position d 
+		WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
+		ORDER BY a.emp_name`;
+		// console.log(sql);
 		db.query(sql, (err, result) => {
 			// console.log(result);
 			socket.emit('user_status', { users: result });
 		})
-	}, 1000000);
+	}, 3000);
 
 	socket.on('join', (data) => {
 		console.log(`${data.user} join the room ${data.room}`);
