@@ -395,4 +395,75 @@ LessonRouter.post('/holding_final', async (req, res) => {
     res.send(res_dt)
 })
 
-module.exports = { LessonRouter, SaveLessonFinal, MakePDF }
+const MeetingPdfGen = async (data, file_path) => {
+    var table_name, select, whr, order, res_dt;
+    var date = dateFormat(new Date(), "yyyy_mm_dd"),
+        datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+        catg_id = 8;
+    table_name = 'md_teams'
+    select = `id, team_name`
+    var team_dt = await F_Select(select, table_name, null, null)
+    var handover_by = team_dt.msg.find(e => e.id == data.handover_by).team_name
+    var handover_to = team_dt.msg.find(e => e.id == data.handover_to).team_name
+
+    data.handover_by = handover_by
+    data.handover_to = handover_to
+    data.date = dateFormat(data.date, "dd/mm/yyyy H:MM TT")
+    data.handover_date = dateFormat(data.handover_date, "dd/mm/yyyy H:MM TT")
+    data['img'] = file_path ? server_url + file_path : null
+
+    // console.log(data);
+
+    var template = "assets/template/meeting.html"
+    var upload_path = `assets/forms/meeting/meeting_${date}_${data.ref_no.split('/').join('-').split(' ').join('-')}.pdf`,
+        pdf_path = `forms/meeting/meeting_${date}_${data.ref_no.split('/').join('-').split(' ').join('-')}.pdf`;
+
+    var pdf_dt = await MakePDF(template, upload_path, data, header = 'Weekly Meeting')
+
+    return new Promise(async (resolve, reject) => {
+        if (pdf_dt.suc > 0) {
+            var ins_table_name = 'td_weekly_meeting',
+                fields = `pdf_location = "${pdf_path}", modified_by = "${data.user}", modified_at = "${datetime}"`,
+                values = null,
+                ins_where = `id = ${data.id}`,
+                flag = 1;
+            res_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+            ins_table_name = 'td_forms'
+            fields = '(catg_id, form_type, form_name, form_path, created_by, created_at)'
+            values = `("${catg_id}", "F", "Holding Statement", "${pdf_path}", "${data.user}", "${datetime}")`
+            ins_where = null
+            flag = 0
+            var r_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+            resolve(res_dt)
+        } else {
+            res_dt = pdf_dt
+            resolve(res_dt)
+        }
+    })
+}
+
+LessonRouter.get('/ab', async (req, res) => {
+    var data = {
+        id: 0,
+        inc_id: 19,
+        user: 'suman@synergicsoftek.in',
+        ref_no: '002',
+        handover_date: '2022-09-02T13:32',
+        date: '2022-09-02T13:33',
+        handover_by: '1',
+        handover_to: '2',
+        attended_by: 'All members',
+        ongoing_act: 'Normal Operations',
+        upcoming_act: 'Normal Operations',
+        logistics: 'Supply Vessel Available',
+        shore_act: 'Normal Operations',
+        others: 'None',
+        final_flag: 'N',
+        file: null
+    }
+    var da = await MeetingPdfGen(data, null)
+    // console.log(da);
+    res.send('da')
+})
+
+module.exports = { LessonRouter, SaveLessonFinal, MakePDF, MeetingPdfGen }

@@ -3,7 +3,7 @@ const { F_Insert, F_Select, CreateActivity, F_Delete } = require('../modules/Mas
 const dateFormat = require('dateformat');
 const fs = require('fs');
 const upload = require('express-fileupload');
-const { SaveLessonFinal, MakePDF } = require('./LessonLearntRouter');
+const { SaveLessonFinal, MakePDF, MeetingPdfGen } = require('./LessonLearntRouter');
 
 const FormRouter = express.Router();
 FormRouter.use(upload());
@@ -589,12 +589,20 @@ FormRouter.post('/meeting', async (req, res) => {
             } else {
                 console.log(`Successfully ${fileName} uploaded`);
                 res_dt = await meetingSave(data, file_path)
+                if (data.final_flag == 'Y') {
+                    data.id = data.id > 0 ? data.id : res_dt.lastId.insertId
+                    await MeetingPdfGen(data, file_path)
+                }
                 res.send(res_dt)
             }
         })
     } else {
         file_path = null
         res_dt = await meetingSave(data, file_path)
+        if (data.final_flag == 'Y') {
+            data.id = data.id > 0 ? data.id : res_dt.lastId.insertId
+            await MeetingPdfGen(data, file_path)
+        }
         res.send(res_dt)
     }
 })

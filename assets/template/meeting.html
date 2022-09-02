@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weakly Meeting</title>
+</head>
+<style>
+    body {
+        padding: 25px;
+    }
+
+    .heading {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .container {
+        padding-top: 20px;
+    }
+
+    .content {
+        padding: 0 40px 0 30px;
+    }
+
+    .img-content {
+        padding: 25px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .img-content img {
+        padding: 2px;
+        border: black solid 2px;
+        margin-right: 5px;
+        max-height: 250px;
+        width: 250px;
+    }
+
+    .suffix {
+        float: right;
+        padding-left: 5px;
+    }
+
+    .tb-centent {
+        padding-left: 10px;
+    }
+</style>
+
+<body>
+    <div>
+        <table>
+            <tr>
+                <td class="heading">Refference No<span class="suffix">:</span></td>
+                <td class="tb-centent">{{ref_no}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Meeting Date<span class="suffix">:</span></td>
+                <td class="tb-centent">{{date}}</td>
+            </tr>
+            <tr>
+                <td class="heading">IMT Schedule Handover Date<span class="suffix">:</span></td>
+                <td class="tb-centent">{{handover_date}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Handover By (Outgoing Team)<span class="suffix">:</span></td>
+                <td class="tb-centent">{{handover_by}}</td>
+            </tr>
+            <tr>
+                <td class="heading">Handover To (Incoming Team)<span class="suffix">:</span></td>
+                <td class="tb-centent">{{handover_to}}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="container">
+        <label class="heading">Attend By: </label>
+        <p class="content">{{attended_by}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Summary Of Ongoing Activities: </label>
+        <p class="content">{{ongoing_act}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Summary Of Upcoming Activities: </label>
+        <p class="content">{{upcoming_act}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Summary Of Logistics: </label>
+        <p class="content">{{logistics}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Summary Of Short Based Activities: </label>
+        <p class="content">{{shore_act}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Others: </label>
+        <p class="content">{{others}}</p>
+    </div>
+    <div class="container">
+        <label class="heading">Attchments:</label>
+        <div class="img-content">
+            <img src='{{img}}' alt="">
+        </div>
+    </div>
+</body>
+
+</html>
