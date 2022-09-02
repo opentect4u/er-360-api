@@ -399,7 +399,7 @@ const MeetingPdfGen = async (data, file_path) => {
     var table_name, select, whr, order, res_dt;
     var date = dateFormat(new Date(), "yyyy_mm_dd"),
         datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
-        catg_id = 8;
+        catg_id = 14;
     table_name = 'md_teams'
     select = `id, team_name`
     var team_dt = await F_Select(select, table_name, null, null)
