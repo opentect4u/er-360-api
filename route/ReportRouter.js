@@ -120,6 +120,13 @@ ReportRouter.get('/board_report', async (req, res) => {
             order = 'ORDER BY a.id';
             dt = await F_Select(select, table_name, whr, order);
             break;
+        case "8": // INCIDENT OBLECTIVE BOARD
+            table_name = 'td_inc_obj_board';
+            select = `id, inc_id, op_period_from, op_period_to, obj_general, people, environment, assets, reputation, awareness`;
+            whr = `inc_id = "${inc_id}"`;
+            order = 'ORDER BY id';
+            dt = await F_Select(select, table_name, whr, order);
+            break;
 
         default:
             break;

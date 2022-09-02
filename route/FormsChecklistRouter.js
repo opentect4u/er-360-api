@@ -331,12 +331,14 @@ const lesson_file_save = (files, data) => {
                 })
                 resolve(res_dt)
             }
+        } else {
+            resolve(res_dt)
         }
     })
 }
 
 const lessonFileSaveFinal = async (data, files) => {
-    console.log(files);
+    // console.log(files);
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         fileName = '',
         filePath = '',
@@ -458,9 +460,12 @@ const lessonFileSaveFinal = async (data, files) => {
                 }
                 resolve(res_dt)
             }
+        } else {
+            resolve(res_dt)
         }
     })
 }
+
 
 FormRouter.post('/lesson', async (req, res) => {
     var files = req.files ? (req.files.file ? req.files.file : null) : null

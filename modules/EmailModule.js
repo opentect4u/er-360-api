@@ -37,7 +37,7 @@ const UserCredential = async (email_id, user_name, password) => {
 
         var mailOptions = {
             from: 'verm@opentech4u.co.in',
-            to: email_id,
+            to: 'sumanmitra0096@gmail.com',//email_id,
             subject: 'VERM User Credential',
             html: '<!DOCTYPE html>'
                 + '<html>'

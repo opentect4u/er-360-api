@@ -295,7 +295,7 @@ AdmRouter.get('/employee', async (req, res) => {
 		emp_id = req.query.emp_id,
 		emp_whr = emp_id > 0 ? `AND employee_id = ${emp_id}` : '',
         table_name = 'md_employee',
-        select = 'id, employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, user_status, emp_status, approval_flag, img',
+        select = 'id, employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, user_status, emp_status, approval_flag, img, user_role',
         whr = flag != '' ? (id > 0 ? `id = ${id} AND delete_flag = 'N'` : `emp_status = "${flag}" AND delete_flag = 'N' ${emp_whr}`) : `delete_flag = 'N' ${emp_whr}`;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
@@ -321,9 +321,9 @@ AdmRouter.post('/employee', async (req, res) => {
     var dt = '';
 
     var table_name = 'md_employee',
-        fields = data.id > 0 ? `employee_id = "${data.employee_id}", emp_name = "${data.name}", emp_depart_id = "${data.department}", emp_pos_id = "${data.position}", email = "${data.email}", p_code = "${data.p_code}", personal_cnct_no = "${data.p_contact}", er_code = "${data.er_code}", er_cnct_no = "${data.er_contact}", user_type = "${data.user_type}", approval_flag = "${data.approval_flag}", emp_status = "${data.emp_status}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-            '(employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, approval_flag, emp_status, created_by, created_at)',
-        values = `("${data.employee_id}", "${data.name}", "${data.department}", "${data.position}", "${data.email}", "${pwd}", "${data.p_code}", "${data.p_contact}", "${data.er_code}", "${data.er_contact}", "${data.user_type}", "${data.approval_flag}", "${data.emp_status}", "${data.user}", "${datetime}")`,
+        fields = data.id > 0 ? `employee_id = "${data.employee_id}", emp_name = "${data.name}", emp_depart_id = "${data.department}", emp_pos_id = "${data.position}", email = "${data.email}", p_code = "${data.p_code}", personal_cnct_no = "${data.p_contact}", er_code = "${data.er_code}", er_cnct_no = "${data.er_contact}", user_type = "${data.user_type}", approval_flag = "${data.approval_flag}", emp_status = "${data.emp_status}", user_role = '${data.user_role}', modified_by = "${data.user}", modified_at = "${datetime}"` :
+            '(employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, approval_flag, emp_status, user_role, created_by, created_at)',
+        values = `("${data.employee_id}", "${data.name}", "${data.department}", "${data.position}", "${data.email}", "${pwd}", "${data.p_code}", "${data.p_contact}", "${data.er_code}", "${data.er_contact}", "${data.user_type}", "${data.approval_flag}", "${data.emp_status}", '${data.user_role}', "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
 		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';

@@ -38,7 +38,7 @@ LoginRouter.post('/login', async (req, res) => {
     var res_dt = '';
     var data = req.body,
         table_name = 'md_employee',
-        select = 'id, employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, personal_cnct_no, er_cnct_no, user_type, emp_status, first_login, approval_flag',
+        select = 'id, employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, personal_cnct_no, er_cnct_no, user_type, emp_status, first_login, approval_flag, user_role as role',
         whr = `email = "${data.email}" AND emp_status = "A"`;
     var dt = await F_Select(select, table_name, whr, null);
     if (dt.msg.length > 0) {

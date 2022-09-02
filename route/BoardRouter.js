@@ -1,7 +1,9 @@
 const express = require('express');
 const { F_Insert, F_Select, CreateActivity, F_Delete } = require('../modules/MasterModule');
 const dateFormat = require('dateformat');
+const { Notificatio, IncBoard, VesselStatus, HelicupterStatus, ProbStatus, CasualtyStatus, EvacuationStatus, EventStatus, IncObjStatus } = require('../modules/NotificationModule');
 const BoardRouter = express.Router();
+require('dotenv').config();
 
 /////////////////////////////// ACTIVE INCIDENT DETAILS ///////////////////////////////////////
 BoardRouter.get('/get_active_inc', async (req, res) => {
@@ -16,12 +18,16 @@ BoardRouter.get('/get_active_inc', async (req, res) => {
 
 /////////////////////////////// INCIDENT BOARD ///////////////////////////////////////
 BoardRouter.get('/inc_board', async (req, res) => {
+    // var io = req.app.get('socketio');
+    // console.log(process.env.USER_DATA);
+
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_board',
         select = 'id, inc_id, date, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, time, people, env, asset, reputation',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
+    // req.io.emit("user_status", dt);
     res.send(dt);
 })
 
@@ -29,9 +35,10 @@ BoardRouter.post('/inc_board', async (req, res) => {
     var data = req.body;
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         date = dateFormat(new Date(), "yyyy-mm-dd"),
-        res_data = { suc: 1, msg: 'Success' };
+        res_data = '';
     if (data.dt.length > 0) {
-        data.dt.forEach(async dt => {
+        // data.dt.forEach(async dt => {
+        for (let dt of data.dt) {
             var table_name = 'td_inc_board',
                 fields = dt.id > 0 ? `inc_id = "${data.inc_id}", date = "${date}", time = "${dt.time_inc}", installation = "${data.installation}", 
                 coordinates = "${data.coordinates}", visibility = "${dt.visibility}", visibility_unit = "${dt.visibility_unit}", wind_speed = "${dt.wind_speed}", wind_speed_unit = "${dt.wind_speed_unit}",
@@ -50,8 +57,10 @@ BoardRouter.post('/inc_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await IncBoard(req.io, data.inc_id) }
     }
+
     res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +81,7 @@ BoardRouter.post('/vessel_board', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
-        data.dt.forEach(async dta => {
+        for (let dta of data.dt) {
             var table_name = 'td_vessel_board',
                 fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", vessel_name = "${dta.vessel_name}",
                 vessel_type = "${dta.vessel_type}", form_at = "${dta.form_at}", etd = "${dta.etd}",
@@ -90,8 +99,10 @@ BoardRouter.post('/vessel_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await VesselStatus(req.io, data.inc_id) }
     }
+    // Notificatio(req.io)
     res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +123,7 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
-        data.dt.forEach(async dta => {
+        for (let dta of data.dt) {
             var table_name = 'td_helicopter_board',
                 fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", call_sign = "${dta.call_sign}",
                 heli_type = "${dta.heli_type}", form_at = "${dta.form_at}", etd = "${dta.etd}",
@@ -130,8 +141,10 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await HelicupterStatus(req.io, data.inc_id) }
     }
+    // Notificatio(req.io)
     res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -189,17 +202,20 @@ BoardRouter.post('/casualty_board', async (req, res) => {
             flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
             c_dt_save = await F_Insert(table_name, fields, values, whr, flag)
             if (c_dt_save.suc > 0) {
-                let c_id = c_dt_save.lastId.insertId
+                let c_id = flag > 0 ? c_dt.id : c_dt_save.lastId.insertId
                 let condition = ''
                 for (let e_dt of c_dt.casualtygrid) {
+                    // console.log(e_dt.id);
                     table_name = 'td_casualty_board_dt'
-                    fields = c_dt.id > 0 ? `emp_condition = "${e_dt.emp_condition}", location = "${e_dt.location}", time = "${e_dt.time}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    fields = e_dt.id > 0 ? `emp_condition = "${e_dt.emp_condition}", location = "${e_dt.location}", time = "${e_dt.time}", modified_by = "${data.user}", modified_at = "${datetime}"` :
                         `(inc_id, board_id, emp_condition, location, time, created_by, created_at)`
                     values = `("${data.inc_id}", "${c_id}", "${e_dt.emp_condition}", "${e_dt.location}", "${e_dt.time}", "${data.user}", "${datetime}")`
                     whr = `id = ${e_dt.id}`
-                    flag = c_dt.id > 0 ? 1 : 0
+                    flag = e_dt.id > 0 ? 1 : 0
                     flag_type = flag > 0 ? 'UPDATED' : 'CREATED'
+
                     e_dt_save = await F_Insert(table_name, fields, values, whr, flag)
+
                     if (e_dt_save.suc > 0) {
                         res_dt = { suc: e_dt_save.suc, msg: e_dt_save.msg }
                         condition = e_dt.emp_condition
@@ -217,10 +233,14 @@ BoardRouter.post('/casualty_board', async (req, res) => {
                 break;
             }
         }
+        if (res_dt.suc > 0) { await CasualtyStatus(req.io, data.inc_id) }
         res.send(res_dt)
     } else {
         res_dt = { suc: 0, msg: 'Please Fill All Fields Before Submit!!' }
+        if (res_dt.suc > 0) { await CasualtyStatus(req.io, data.inc_id) }
+        res.send(res_dt)
     }
+    // Notificatio(req.io)
 })
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -240,7 +260,7 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
-        data.dt.forEach(async dta => {
+        for (let dta of data.dt) {
             var table_name = 'td_evacuation_board',
                 fields = dta.id > 0 ? `date = "${datetime}", time = "${dta.time}", destination = "${dta.destination}", dest_to = "${dta.dest_to}",
                 mode_of_transport = "${dta.mode_of_transport}", pob_remaining = "${dta.pob_remaining}", remarks = "${dta.remarks}", modified_by = "${data.user}", modified_at = "${datetime}"` :
@@ -256,8 +276,10 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await EvacuationStatus(req.io, data.inc_id) }
     }
+    // Notificatio(req.io)
     res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +300,7 @@ BoardRouter.post('/event_log_board', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
-        data.dt.forEach(async dta => {
+        for (let dta of data.dt) {
             var table_name = 'td_events_log_board',
                 fields = dta.id > 0 ? `inc_id = "${data.inc_id}", date = "${datetime}", time = "${dta.time}", situation_status = "${dta.situation_status}",
                 resource_assigned = "${dta.resource_assigned}", modified_by = "${data.user}", modified_at = "${datetime}"` :
@@ -295,8 +317,10 @@ BoardRouter.post('/event_log_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await EventStatus(req.io, data.inc_id) }
     }
+    // Notificatio(req.io)
     res.send(res_data)
 })
 //////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +351,7 @@ BoardRouter.post('/prob_board', async (req, res) => {
         now_dt = dateFormat(new Date(), "yyyy-mm-dd"),
         res_data = { suc: 1, msg: 'Success' };
     if (data.dt.length > 0) {
-        data.dt.forEach(async dta => {
+        for (let dta of data.dt) {
             var table_name = 'td_prob_board',
                 fields = dta.id > 0 ? `date = "${now_dt}", prob_cat_id = "${dta.prob_cat_id}", time = "${dta.Time}", value = "${dta.value}", total_prob = "${dta.total_prob}", modified_by = "${data.user}", modified_at = "${datetime}"` :
                     '(inc_id, date, prob_cat_id, time, value, total_prob, created_by, created_at)',
@@ -347,8 +371,10 @@ BoardRouter.post('/prob_board', async (req, res) => {
             var activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
 
             res_data = await F_Insert(table_name, fields, values, whr, flag);
-        })
+        }
+        if (res_data.suc > 0) { await ProbStatus(req.io, data.inc_id) }
     }
+    // Notificatio(req.io)
     res.send(res_data)
 })
 
@@ -356,7 +382,7 @@ BoardRouter.get('/prob_board_dashboard', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_prob_board a, md_prob_category b',
         select = 'a.inc_id, b.name as prob_cat, SUM(a.value) as value, SUM(a.total_prob) total_prob',
-        whr = `a.prob_cat_id=b.id AND inc_id = "${inc_id}"`,
+        whr = `a.prob_cat_id=b.id AND a.inc_id = "${inc_id}"`,
         order = `GROUP BY a.prob_cat_id ORDER BY a.prob_cat_id`;
     var dt = await F_Select(select, table_name, whr, order);
     // console.log(dt);
@@ -376,7 +402,8 @@ BoardRouter.get('/prob_board_report', async (req, res) => {
 
 BoardRouter.get('/delete_board', async (req, res) => {
     var id = req.query.id,
-        board_id = req.query.board_id;
+        board_id = req.query.board_id,
+        inc_id = req.query.inc_id;
     var table_name = '',
         whr = '',
         resDt = '';
@@ -385,46 +412,55 @@ BoardRouter.get('/delete_board', async (req, res) => {
             table_name = 'td_inc_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await IncBoard(req.io, inc_id)
             break;
         case "2": // VESSEL BOARD
             table_name = 'td_vessel_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await VesselStatus(req.io, inc_id)
             break;
         case "3": // HELICOPTER BOARD
             table_name = 'td_helicopter_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await HelicupterStatus(req.io, inc_id)
             break;
         case "4": // PROB BOARD
             table_name = 'td_prob_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await ProbStatus(req.io, inc_id)
             break;
         case "5": // CASULTY BOARD
             table_name = 'td_casualty_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await CasualtyStatus(req.io, inc_id)
             break;
         case "6": // EVACUATION BOARD
             table_name = 'td_evacuation_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await EvacuationStatus(req.io, inc_id)
             break;
         case "7": // EVENT LOG BOARD
             table_name = 'td_events_log_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await EventStatus(req.io, inc_id)
             break;
         case "8": // CASUALTY BOARD DT
             table_name = 'td_casualty_board_dt'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await CasualtyStatus(req.io, inc_id)
             break;
         case "9": // Incident Objectives BOARD
             table_name = 'td_inc_obj_board'
             whr = `id = ${id}`
             resDt = await F_Delete(table_name, whr)
+            await IncObjStatus(req.io, inc_id)
             break;
         default:
             resDt = { suc: 0, msg: 'No Board Selected !!' }
@@ -464,6 +500,8 @@ BoardRouter.post('/inc_obj', async (req, res) => {
         let activity = `Incident Objective Board ${data.inc_name} IS ${flag_type} BY ${data.user} AT ${datetime}.`
         let activity_res = await CreateActivity(user_id, datetime, act_type, activity, data.inc_id);
     }
+    // Notificatio(req.io)
+    if (res_dt.suc > 0) { await IncObjStatus(req.io, data.inc_id) }
     res.send(res_dt)
 })
 //////////////////////////////////////////////////////////////////////////////////

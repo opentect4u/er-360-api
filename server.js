@@ -8,6 +8,7 @@ const express = require('express'),
 	db = require('./core/db'),
 	fs = require('fs');
 const dateFormat = require('dateformat');
+require('dotenv').config();
 
 // USING CORS //
 app.use(cors());
@@ -17,6 +18,253 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(__dirname + "/assets"))
+
+//////////////////////////////// SOCKET /////////////////////////////////////////
+const server = http.createServer(app)
+const io = socketIO(server, {
+	cors: {
+		origin: ["https://verm.opentech4u.co.in", "http://localhost:4200", "https://er-360.com"]
+	}
+})
+
+var user_data = []
+// Handle connection
+io.on('connection', async function (socket) {
+	console.log(`Connected succesfully to the socket ... ${socket.id}`);
+	// setInterval(function () {
+	// 	var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status, img FROM md_employee WHERE user_status != 'O' AND employee_id > 0`;
+	// 	db.query(sql, (err, result) => {
+	// 		socket.emit('active_user', { users: result });
+	// 	})
+	// }, 300000);
+
+	// setInterval(function () {
+	// 	//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
+	// 	var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
+	// 	IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
+	// 	FROM md_employee a, td_team_members b, md_teams c, md_position d 
+	// 	WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
+	// 	ORDER BY a.emp_name`;
+	// 	// console.log(sql);
+	// 	db.query(sql, (err, result) => {
+	// 		// console.log(result);
+	// 		socket.emit('user_status', { users: result });
+	// 	})
+	// }, 300000);
+
+	socket.on('user_status', () => {
+		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
+		var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
+		IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
+		FROM md_employee a, td_team_members b, md_teams c, md_position d 
+		WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
+		ORDER BY a.emp_name`;
+		// console.log(sql);
+		db.query(sql, (err, result) => {
+			// console.log(result);
+			socket.emit('user_status', { users: result });
+		})
+	})
+
+	socket.on('inc_board', (data) => {
+		// console.log(inc_id);
+		var sql = `SELECT id, inc_id, date, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, time, people, env, asset, reputation FROM td_inc_board WHERE inc_id = "${data.inc_id}" ORDER BY id DESC`
+		db.query(sql, (err, result) => {
+			// console.log(result);
+			if (err) res_dt = { suc: 0, msg: err };
+			else res_dt = { suc: 1, msg: result };
+			socket.emit('inc_board', res_dt);
+		})
+	})
+
+	socket.on('vessel_board', (data) => {
+		var sql = `SELECT id, inc_id, date, vessel_name, vessel_type, form_at, etd, to_at, eta, time_to_location, remarks, DATE_FORMAT(date, "%h:%i:%s %p") AS time FROM td_vessel_board WHERE inc_id = "${data.inc_id}" ORDER BY id DESC`
+		db.query(sql, (err, result) => {
+			// console.log(result);
+			if (err) res_dt = { suc: 0, msg: err };
+			else res_dt = { suc: 1, msg: result };
+			socket.emit('vessel_board', res_dt);
+		})
+	})
+
+	socket.on('helicopter_board', async (data) => {
+		await HelicupterStatus(io, data.inc_id)
+	})
+
+	socket.on('prob_board_dashboard', async (data) => {
+		await ProbStatus(io, data.inc_id)
+	})
+
+	socket.on('prob_board_dashboard', async (data) => {
+		await CasualtyStatus(io, data.inc_id)
+	})
+
+	socket.on('evacuation_board', async (data) => {
+		await EvacuationStatus(io, data.inc_id)
+	})
+
+	socket.on('event_log_board', async (data) => {
+		await EventStatus(io, data.inc_id)
+	})
+
+	socket.on('inc_obj', async (data) => {
+		await IncObjStatus(io, data.inc_id)
+	})
+
+	socket.on('join', (data) => {
+		console.log(`${data.user} join the room ${data.room}`);
+		data['s_id'] = socket.id
+		// user_data.push(data)
+		user_data.push(data)
+		// console.log('JOIN', process.env.USER_DATA);
+		socket.broadcast.emit('newUserJoined', { user: data.user, msg: 'has joined' });
+	})
+
+	// const sendNotification = () => {
+	// 	console.log(user);
+	// 	for (let user of user_data) {
+	// 		let sql = ''
+	// 		let sql1 = ''
+	// 		sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code} GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
+	// 		sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code}`
+	// 		db.query(sql, (err, result) => {
+	// 			if (err) {
+	// 				console.log(err);
+	// 				socket.broadcast.to(user.s_id).emit('notification', err)
+	// 			} else {
+	// 				db.query(sql1, (error, res) => {
+	// 					result.push({ total: res[0].total })
+	// 					// console.log(result, res[0].total);
+	// 					socket.broadcast.to(user.s_id).emit('notification', result)
+	// 				})
+	// 			}
+	// 		})
+	// 	}
+	// }
+
+	socket.on('notification', () => {
+		// if (user_data.length > 0) {
+		// 	for (let user of user_data) {
+		let sql = ''
+		let sql1 = ''
+		// sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code} GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
+		// sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code}`
+		sql = `SELECT * FROM td_notification WHERE view_flag = 'N' ORDER BY user, id DESC`
+		sql1 = `SELECT user, COUNT(id) total FROM td_notification WHERE view_flag = 'N' GROUP BY user ORDER BY user`
+		db.query(sql, (err, result) => {
+			if (err) {
+				console.log(err);
+				// socket.broadcast.to(user.s_id).emit('notification', err)
+				socket.broadcast.emit('notification', err)
+			} else {
+				db.query(sql1, (error, res) => {
+					result.push({ total: res })
+					// console.log(result, res[0].total);
+					// socket.broadcast.to(user.s_id).emit('notification', result)
+					socket.broadcast.emit('notification', result)
+				})
+			}
+		})
+		// }
+		// }
+	})
+
+	socket.on('message', (data) => {
+		var buffer = data.file,
+			file_name = buffer.length > 0 ? data.file_name : '',
+			file_flag = buffer.length > 0 ? 1 : 0;
+		if (file_name != '') {
+			upload_status = fs.writeFileSync('assets/uploads/' + file_name, buffer)
+		}
+		var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
+		let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat, file) VALUES ("${data.inc_id}", "${data.chat_dt}", "${data.emp_id}", "${data.message}", "${file_name}")`;
+		console.log(sql);
+		db.query(sql, (err) => {
+			if (err) console.log(err);
+		})
+		var broadcast_data = {
+			user: data.user,
+			message: data.message,
+			date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss'),
+			emp_id: data.emp_id,
+			file_name,
+			file_flag
+		};
+		socket.broadcast.emit('message', broadcast_data);
+	});
+
+	// socket.on('message', (data) => {
+	//     // console.log(data);
+	//     // console.log(`${socket.id.substr(0, 2)} said ${message}`);
+	//     var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
+	//     let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat) VALUES ("${data.inc_id}", "${datetime}", "${data.emp_id}", "${data.message}")`;
+	//     db.query(sql, (err) => {
+	//         if (err) console.log(err);
+	//     })
+	//     socket.broadcast.emit('message', { user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss'), emp_id: data.emp_id });
+	//     //socket.broadcast.emit('message', {user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss')});
+	// });
+
+	socket.on('disconnect', () => {
+		console.log('a user disconnected!');
+		// console.log('disconnect', socket.id);
+		user_data.splice(user_data.findIndex(dt => dt.s_id == socket.id), 1)
+
+		// console.log('out', user_data);
+		// var sql = `UPDATE md_employee SET user_status = 'O' WHERE employee_id = ${user[socket.id]}`;
+		// db.query(sql, (err) => {
+		//     if(err) console.log(err);
+		//     else{ 
+		// if(user.emp_id){
+		//     const index = user.findIndex(dt => dt.socket_id == socket.id);
+		//     console.log(index);
+		//     user.splice(index, 1);
+		// }
+
+		// // }
+		// console.log('dis');
+		// console.log(user);
+		// })
+	});
+});
+
+app.use((req, res, next) => {
+	req.io = io;
+	req.user_data = user_data
+	// var urlWithQuery = req.method == 'GET' ? req.url.split('?') : ''
+	// url = urlWithQuery.length > 0 ? urlWithQuery[0] : urlWithQuery
+	// console.log(req.method);
+	// if (req.method == 'POST') {
+	Notificatio(io);
+	UserStatus(io)
+	ActiveUser(io)
+	// console.log(url);
+	// if (req.method == 'POST') {
+	// 	if (req.body.inc_id > 0) {
+	// 		// function afterResponse(io, inc_id) {
+	// 		// 	res.removeListener('finish', IncBoard(io, inc_id));
+	// 		// 	res.removeListener('close', IncBoard(io, inc_id));
+
+	// 		// 	// actions after response
+	// 		// }
+	// 		// res.on('finish', afterResponse(io, req.body.inc_id));
+	// 		// res.on('close', afterResponse(io, req.body.inc_id));
+	// 		res.on('send', () => {
+	// 			inc_id = req.body.inc_id;
+	// 			var sql = `SELECT id, inc_id, date, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, time, people, env, asset, reputation FROM td_inc_board WHERE inc_id = "${inc_id}" ORDER BY id DESC`
+	// 			var res_dt = '';
+	// 			db.query(sql, (err, result) => {
+	// 				if (err) res_dt = { suc: 0, msg: err };
+	// 				else res_dt = { suc: 1, msg: result };
+	// 				console.log(res_dt);
+	// 				io.emit('inc_board', res_dt);
+	// 			})
+	// 		})()
+	// 	}
+	// }
+	return next();
+});
+/////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////
 const { AdmRouter } = require('./route/AdminRouter');
@@ -35,6 +283,7 @@ const { RepoRouter } = require('./route/RepositoryRouter');
 const { ReportRouter } = require('./route/ReportRouter');
 const { DashboardRouter } = require('./route/DashboardRouter');
 const { LessonRouter } = require('./route/LessonLearntRouter');
+const { Notificatio, UserStatus, ActiveUser, IncBoard, HelicupterStatus, ProbStatus, CasualtyStatus, EvacuationStatus, EventStatus, IncObjStatus } = require('./modules/NotificationModule');
 /////////////////////////////////////////////////////////////////////////
 
 app.use(AdmRouter);
@@ -167,129 +416,10 @@ const GetRes = (frm, to, inc_id) => {
 //    else console.log(`App is Running at PORT - ${port}`);
 //})
 
-const server = http.createServer(app)
-const io = socketIO(server, {
-	cors: {
-		origin: ["https://verm.opentech4u.co.in", "http://localhost:4200", "https://er-360.com"]
-	}
-})
-
-var user_data = []
-// Handle connection
-io.on('connection', async function (socket) {
-	console.log(`Connected succesfully to the socket ... ${socket.id}`);
-	setInterval(function () {
-		var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status, img FROM md_employee WHERE user_status != 'O' AND employee_id > 0`;
-		db.query(sql, (err, result) => {
-			socket.emit('active_user', { users: result });
-		})
-	}, 3000);
-
-	setInterval(function () {
-		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
-		var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
-		IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
-		FROM md_employee a, td_team_members b, md_teams c, md_position d 
-		WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
-		ORDER BY a.emp_name`;
-		// console.log(sql);
-		db.query(sql, (err, result) => {
-			// console.log(result);
-			socket.emit('user_status', { users: result });
-		})
-	}, 3000);
-
-	socket.on('join', (data) => {
-		console.log(`${data.user} join the room ${data.room}`);
-		data['s_id'] = socket.id
-		user_data.push(data)
-		// console.log(data);
-		socket.broadcast.emit('newUserJoined', { user: data.user, msg: 'has joined' });
-	})
-
-	socket.on('notification', () => {
-		if (user_data.length > 0) {
-			for (let user of user_data) {
-				let sql = ''
-				let sql1 = ''
-				sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code} GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
-				sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code}`
-				db.query(sql, (err, result) => {
-					if (err) {
-						console.log(err);
-						socket.broadcast.to(user.s_id).emit('notification', err)
-					} else {
-						db.query(sql1, (error, res) => {
-							result.push({ total: res[0].total })
-							// console.log(result, res[0].total);
-							socket.broadcast.to(user.s_id).emit('notification', result)
-						})
-					}
-				})
-			}
-		}
-	})
-
-	socket.on('message', (data) => {
-		var buffer = data.file,
-			file_name = buffer.length > 0 ? data.file_name : '',
-			file_flag = buffer.length > 0 ? 1 : 0;
-		if (file_name != '') {
-			upload_status = fs.writeFileSync('assets/uploads/' + file_name, buffer)
-		}
-		var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
-		let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat, file) VALUES ("${data.inc_id}", "${data.chat_dt}", "${data.emp_id}", "${data.message}", "${file_name}")`;
-		console.log(sql);
-		db.query(sql, (err) => {
-			if (err) console.log(err);
-		})
-		var broadcast_data = {
-			user: data.user,
-			message: data.message,
-			date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss'),
-			emp_id: data.emp_id,
-			file_name,
-			file_flag
-		};
-		socket.broadcast.emit('message', broadcast_data);
-	});
-
-	// socket.on('message', (data) => {
-	//     // console.log(data);
-	//     // console.log(`${socket.id.substr(0, 2)} said ${message}`);
-	//     var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
-	//     let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat) VALUES ("${data.inc_id}", "${datetime}", "${data.emp_id}", "${data.message}")`;
-	//     db.query(sql, (err) => {
-	//         if (err) console.log(err);
-	//     })
-	//     socket.broadcast.emit('message', { user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss'), emp_id: data.emp_id });
-	//     //socket.broadcast.emit('message', {user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss')});
-	// });
-
-	socket.on('disconnect', () => {
-		console.log('a user disconnected!');
-		// console.log('disconnect', socket.id);
-		user_data.splice(user_data.findIndex(dt => dt.s_id == socket.id), 1)
-
-		// console.log('out', user_data);
-		// var sql = `UPDATE md_employee SET user_status = 'O' WHERE employee_id = ${user[socket.id]}`;
-		// db.query(sql, (err) => {
-		//     if(err) console.log(err);
-		//     else{ 
-		// if(user.emp_id){
-		//     const index = user.findIndex(dt => dt.socket_id == socket.id);
-		//     console.log(index);
-		//     user.splice(index, 1);
-		// }
-
-		// // }
-		// console.log('dis');
-		// console.log(user);
-		// })
-	});
-});
 
 server.listen(port, (err) => {
 	if (err) console.log(err);
 	else console.log(`App is Running at PORT - ${port} && HOST - http://localhost:${port}`);
 });
+
+// module.exports = { sendNotification }

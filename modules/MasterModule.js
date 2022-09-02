@@ -149,4 +149,41 @@ const MakeCall = async (emp_id, inc_name) => {
     })
 }
 
-module.exports = { F_Select, F_Insert, F_Delete, F_Check, CreateActivity, GetIncNo, MakeCall }
+const SendMessage = async (emp_id, inc_name) => {
+    var table_name = `md_employee`,
+        select = `id, emp_id, emp_name, p_code, personal_cnct_no, er_code, er_cnct_no, user_type`,
+        whr = `id = ${emp_id}`,
+        order = null;
+    var result = await F_Select(select, table_name, whr, order)
+    return new Promise((resolve, reject) => {
+        if (result.suc > 0) {
+            const vonage = new Vonage({
+                apiKey: process.env.VONAGE_API_KEY,
+                apiSecret: process.env.VONAGE_API_SECRET
+            })
+
+            const from = process.env.VONAGE_NUMBER
+            const to = `"${result.msg[0].p_code}${result.msg[0].personal_cnct_no}"`
+            const text = result.msg[0].user_type == 'I' || result.msg[0].user_type == 'A' ? `An incident ${inc_name} has been occurred. You are assigned for this incident.` : `An incident ${inc_name} has been occurred. You are assigned for this incident. Please contact to your INCIDENT COMMANDER`
+
+            vonage.message.sendSms(from, to, text, (err, responseData) => {
+                if (err) {
+                    console.log(err);
+                    reject(err)
+                } else {
+                    if (responseData.messages[0]['status'] === "0") {
+                        console.log("Message sent successfully.");
+                        let msg = { msg: "Message sent successfully.", responseData }
+                        resolve(msg)
+                    } else {
+                        console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
+                        let msg = { msg: `Message failed with error: ${responseData.messages[0]['error-text']}`, responseData }
+                        resolve(msg)
+                    }
+                }
+            })
+        }
+    })
+}
+
+module.exports = { F_Select, F_Insert, F_Delete, F_Check, CreateActivity, GetIncNo, MakeCall, SendMessage }
