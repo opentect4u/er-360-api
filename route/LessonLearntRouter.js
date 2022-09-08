@@ -410,7 +410,7 @@ const MeetingPdfGen = async (data, file_path) => {
     data.handover_to = handover_to
     data.date = dateFormat(data.date, "dd/mm/yyyy H:MM TT")
     data.handover_date = dateFormat(data.handover_date, "dd/mm/yyyy H:MM TT")
-    data['img'] = file_path ? server_url + file_path : null
+    data['img'] = file_path ? server_url + file_path : (data.file ? data.file : null)
 
     // console.log(data);
 
