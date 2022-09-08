@@ -430,7 +430,7 @@ const MeetingPdfGen = async (data, file_path) => {
             res_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
             ins_table_name = 'td_forms'
             fields = '(catg_id, form_type, form_name, form_path, created_by, created_at)'
-            values = `("${catg_id}", "F", "Holding Statement", "${pdf_path}", "${data.user}", "${datetime}")`
+            values = `("${catg_id}", "F", "${data.date} ${data.ref_no}", "${pdf_path}", "${data.user}", "${datetime}")`
             ins_where = null
             flag = 0
             var r_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
