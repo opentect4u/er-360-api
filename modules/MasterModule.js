@@ -145,6 +145,8 @@ const MakeCall = async (emp_id, inc_name) => {
                 if (error) { console.error(error); resolve(error) }
                 if (response) { console.log(response); resolve(response) }
             })
+        } else {
+            resolve(result)
         }
     })
 }

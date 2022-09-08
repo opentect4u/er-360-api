@@ -31,26 +31,6 @@ var user_data = []
 // Handle connection
 io.on('connection', async function (socket) {
 	console.log(`Connected succesfully to the socket ... ${socket.id}`);
-	// setInterval(function () {
-	// 	var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status, img FROM md_employee WHERE user_status != 'O' AND employee_id > 0`;
-	// 	db.query(sql, (err, result) => {
-	// 		socket.emit('active_user', { users: result });
-	// 	})
-	// }, 300000);
-
-	// setInterval(function () {
-	// 	//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
-	// 	var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
-	// 	IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
-	// 	FROM md_employee a, td_team_members b, md_teams c, md_position d 
-	// 	WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
-	// 	ORDER BY a.emp_name`;
-	// 	// console.log(sql);
-	// 	db.query(sql, (err, result) => {
-	// 		// console.log(result);
-	// 		socket.emit('user_status', { users: result });
-	// 	})
-	// }, 300000);
 
 	socket.on('user_status', () => {
 		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
@@ -120,28 +100,6 @@ io.on('connection', async function (socket) {
 		socket.broadcast.emit('newUserJoined', { user: data.user, msg: 'has joined' });
 	})
 
-	// const sendNotification = () => {
-	// 	console.log(user);
-	// 	for (let user of user_data) {
-	// 		let sql = ''
-	// 		let sql1 = ''
-	// 		sql = `SELECT * FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code} GROUP BY TIME(created_at), activity ORDER BY id DESC LIMIT 4`
-	// 		sql1 = `SELECT COUNT(id) total FROM td_notification WHERE view_flag = 'N' AND user = ${user.emp_code}`
-	// 		db.query(sql, (err, result) => {
-	// 			if (err) {
-	// 				console.log(err);
-	// 				socket.broadcast.to(user.s_id).emit('notification', err)
-	// 			} else {
-	// 				db.query(sql1, (error, res) => {
-	// 					result.push({ total: res[0].total })
-	// 					// console.log(result, res[0].total);
-	// 					socket.broadcast.to(user.s_id).emit('notification', result)
-	// 				})
-	// 			}
-	// 		})
-	// 	}
-	// }
-
 	socket.on('notification', () => {
 		// if (user_data.length > 0) {
 		// 	for (let user of user_data) {
@@ -193,18 +151,6 @@ io.on('connection', async function (socket) {
 		socket.broadcast.emit('message', broadcast_data);
 	});
 
-	// socket.on('message', (data) => {
-	//     // console.log(data);
-	//     // console.log(`${socket.id.substr(0, 2)} said ${message}`);
-	//     var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
-	//     let sql = `INSERT INTO td_chat (inc_id, chat_dt, employee_id, chat) VALUES ("${data.inc_id}", "${datetime}", "${data.emp_id}", "${data.message}")`;
-	//     db.query(sql, (err) => {
-	//         if (err) console.log(err);
-	//     })
-	//     socket.broadcast.emit('message', { user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss'), emp_id: data.emp_id });
-	//     //socket.broadcast.emit('message', {user: data.user, message: data.message, date_time: dateFormat(new Date(), 'dd/mm/yyyy HH:MM:ss')});
-	// });
-
 	socket.on('disconnect', () => {
 		console.log('a user disconnected!');
 		// console.log('disconnect', socket.id);
@@ -238,30 +184,6 @@ app.use((req, res, next) => {
 	Notificatio(io);
 	UserStatus(io)
 	ActiveUser(io)
-	// console.log(url);
-	// if (req.method == 'POST') {
-	// 	if (req.body.inc_id > 0) {
-	// 		// function afterResponse(io, inc_id) {
-	// 		// 	res.removeListener('finish', IncBoard(io, inc_id));
-	// 		// 	res.removeListener('close', IncBoard(io, inc_id));
-
-	// 		// 	// actions after response
-	// 		// }
-	// 		// res.on('finish', afterResponse(io, req.body.inc_id));
-	// 		// res.on('close', afterResponse(io, req.body.inc_id));
-	// 		res.on('send', () => {
-	// 			inc_id = req.body.inc_id;
-	// 			var sql = `SELECT id, inc_id, date, installation, coordinates, visibility, visibility_unit, wind_speed, wind_speed_unit, wind_direc, sea_state, temp, temp_unit, summary, status, time, people, env, asset, reputation FROM td_inc_board WHERE inc_id = "${inc_id}" ORDER BY id DESC`
-	// 			var res_dt = '';
-	// 			db.query(sql, (err, result) => {
-	// 				if (err) res_dt = { suc: 0, msg: err };
-	// 				else res_dt = { suc: 1, msg: result };
-	// 				console.log(res_dt);
-	// 				io.emit('inc_board', res_dt);
-	// 			})
-	// 		})()
-	// 	}
-	// }
 	return next();
 });
 /////////////////////////////////////////////////////////////////////////
@@ -272,7 +194,7 @@ const { TeamRouter } = require('./route/TeamRouter');
 const { LoginRouter } = require('./route/LoginRouter');
 const { IncidentRouter } = require('./route/IncidentRouter');
 const { BoardRouter } = require('./route/BoardRouter');
-const { F_Select } = require('./modules/MasterModule');
+const { F_Select, MakeCall } = require('./modules/MasterModule');
 const { MessageRouter } = require('./route/MessageRouter');
 const { ActivationRouter } = require('./route/ActivationRouter');
 const { FormRouter } = require('./route/FormsChecklistRouter');
@@ -401,6 +323,14 @@ app.get('/answer', (req, res) => {
 
 app.get('/event', (req, res) => {
 	res.send('Answer Page is working');
+})
+
+app.get('/test_call', async (req, res) => {
+	var data = req.query,
+		emp_id = data.emp_id,
+		inc_name = data.inc_name;
+	var res_dt = await MakeCall(emp_id, inc_name);
+	res.send(res_dt)
 })
 
 const GetRes = (frm, to, inc_id) => {
