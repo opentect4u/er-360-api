@@ -114,7 +114,7 @@ const GetIncNo = async () => {
 
 const MakeCall = async (emp_id, inc_name) => {
     var table_name = `md_employee`,
-        select = `id, emp_id, emp_name, p_code, personal_cnct_no, er_code, er_cnct_no, user_type`,
+        select = `id, emp_name, p_code, personal_cnct_no, er_code, er_cnct_no, user_type`,
         whr = `id = ${emp_id}`,
         order = null;
     var result = await F_Select(select, table_name, whr, order)
