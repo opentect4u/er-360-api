@@ -181,8 +181,11 @@ app.use((req, res, next) => {
 	// url = urlWithQuery.length > 0 ? urlWithQuery[0] : urlWithQuery
 	// console.log(req.method);
 	// if (req.method == 'POST') {
+	console.log(req.url);
 	Notificatio(io);
-	UserStatus(io)
+	if (req.url != '/login' || req.url != '/log_out') {
+		UserStatus(io)
+	}
 	ActiveUser(io)
 	return next();
 });
