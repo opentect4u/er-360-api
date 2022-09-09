@@ -54,7 +54,7 @@ LoginRouter.post('/login', async (req, res) => {
                     ac_whr = `a.emp_id = ${dt.msg[0].id} AND (((SELECT c.from_date FROM td_team_log c WHERE c.team_id=b.team_id ORDER BY c.id DESC LIMIT 1) <= date(now()) AND (SELECT c.to_date FROM td_team_log c WHERE c.team_id=b.team_id ORDER BY c.id DESC LIMIT 1) >= date(now())) OR b.active_flag = 'Y')`;
                 var ac_dt = await F_Select(ac_select, ac_table_name, ac_whr, null);
                 res_dt = { suc: 1, msg: dt.msg, active_flag: ac_dt.msg[0].active_flag };
-                await UserStatus();
+                await UserStatus(req.io);
             } else {
                 res_dt = { suc: 0, msg: "Something Went Wrong" }
             }
@@ -76,7 +76,7 @@ LoginRouter.post('/log_out', async (req, res) => {
         status = 'O';
     await UpdateUserLog(user, status, 'LogOut')
     var dt = await UpdateUserStatus(id, user, status);
-    await UserStatus();
+    await UserStatus(req.io);
     res.send(dt);
 })
 
