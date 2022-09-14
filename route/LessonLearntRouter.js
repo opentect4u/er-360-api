@@ -442,6 +442,51 @@ const MeetingPdfGen = async (data, file_path) => {
     })
 }
 
+const InvestigationPdfGen = async (data, file1, file2, file3, row_id) => {
+    var table_name, select, whr, order, res_dt;
+    var date = dateFormat(new Date(), "yyyy_mm_dd"),
+        datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+        catg_id = 15;
+
+    data.reported_on = dateFormat(data.reported_on, "dd/mm/yyyy")
+    data.approved_on = dateFormat(data.approved_on, "dd/mm/yyyy")
+    data.file1 = file1 ? server_url + file1 : (data.file1 ? data.file1 : null)
+    data.file2 = file2 ? server_url + file2 : (data.file1 ? data.file2 : null)
+    data.file3 = file3 ? server_url + file3 : (data.file1 ? data.file3 : null)
+    data.id = row_id
+    data.team_members = JSON.parse(data.team_members)
+    // data['img'] = file_path ? server_url + file_path : (data.file ? data.file : null)
+
+    // console.log(data);
+
+    var template = "assets/template/investigation.html"
+    var upload_path = `assets/forms/incident_investigation_report/inv_${date}_${data.ref_no.split('/').join('-').split(' ').join('-')}.pdf`,
+        pdf_path = `forms/incident_investigation_report/inv_${date}_${data.ref_no.split('/').join('-').split(' ').join('-')}.pdf`;
+
+    var pdf_dt = await MakePDF(template, upload_path, data, header = 'Incident Investigation Report')
+
+    return new Promise(async (resolve, reject) => {
+        if (pdf_dt.suc > 0) {
+            var ins_table_name = 'td_investigation',
+                fields = `pdf_location = "${pdf_path}", modified_by = "${data.user}", modified_at = "${datetime}"`,
+                values = null,
+                ins_where = `id = ${data.id}`,
+                flag = 1;
+            res_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+            ins_table_name = 'td_forms'
+            fields = '(catg_id, form_type, form_name, form_path, created_by, created_at)'
+            values = `("${catg_id}", "F", "${data.inc_name}-Incident Investigation Report", "${pdf_path}", "${data.user}", "${datetime}")`
+            ins_where = null
+            flag = 0
+            var r_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+            resolve(res_dt)
+        } else {
+            res_dt = pdf_dt
+            resolve(res_dt)
+        }
+    })
+}
+
 LessonRouter.get('/ab', async (req, res) => {
     var data = {
         id: 0,
@@ -466,4 +511,4 @@ LessonRouter.get('/ab', async (req, res) => {
     res.send('da')
 })
 
-module.exports = { LessonRouter, SaveLessonFinal, MakePDF, MeetingPdfGen }
+module.exports = { LessonRouter, SaveLessonFinal, MakePDF, MeetingPdfGen, InvestigationPdfGen }

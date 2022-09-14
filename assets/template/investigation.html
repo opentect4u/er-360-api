@@ -15,14 +15,33 @@
   .heading {
     font-size: 20px;
     font-weight: 600;
+
+  }
+
+  .sub-heading {
+    font-size: 12px;
+    font-weight: 600;
+    width: 20%;
+    text-align: center;
   }
 
   .heading.right-col {
     padding-left: 25px;
   }
 
+  .heading.point {
+    text-transform: uppercase;
+    border-bottom: 2px solid black;
+    padding: 0 0 1px 0;
+    letter-spacing: 4px;
+  }
+
   .container {
     padding-top: 20px;
+  }
+
+  .container.middle {
+    text-align: center;
   }
 
   .content {
@@ -44,6 +63,11 @@
     width: 250px;
   }
 
+  .img-content p {
+    padding: 5px;
+    text-align: justify;
+  }
+
   .suffix {
     float: right;
     padding-left: 5px;
@@ -51,6 +75,25 @@
 
   .tb-centent {
     padding-left: 10px;
+  }
+
+  .tb-sub-centent {
+    width: 13%;
+    padding: 7px 0px;
+    font-size: 15px;
+    text-align: left;
+  }
+
+  @media (max-width:550px) {
+    .sub-heading {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .heading {
+      font-size: 15px;
+    }
   }
 </style>
 
@@ -63,50 +106,129 @@
       </tr>
       <tr>
         <td class="heading">Incident Name<span class="suffix">:</span></td>
-        <td class="tb-centent">{{date}}</td>
+        <td class="tb-centent">{{inc_name}}</td>
       </tr>
       <tr>
         <td class="heading">Prepared By<span class="suffix">:</span></td>
-        <td class="tb-centent">{{handover_date}}</td>
+        <td class="tb-centent">{{reported_by}}</td>
         <td class="heading right-col">Prepared On<span class="suffix">:</span></td>
-        <td class="tb-centent">{{handover_by}}</td>
+        <td class="tb-centent">{{reported_on}}</td>
       </tr>
       <tr>
         <td class="heading">Approved By<span class="suffix">:</span></td>
-        <td class="tb-centent">{{handover_to}}</td>
+        <td class="tb-centent">{{approved_by}}</td>
         <td class="heading right-col">Approved On<span class="suffix">:</span></td>
-        <td class="tb-centent">{{handover_to}}</td>
+        <td class="tb-centent">{{approved_on}}</td>
       </tr>
     </table>
   </div>
   <div class="container">
     <label class="heading">Executive Summary: </label>
-    <p class="content">{{attended_by}}</p>
+    <p class="content">{{exec_summary}}</p>
   </div>
-  <div class="container ">
-    <label class="heading">Introduction</label>
-  </div>
-  <div class="container">
-    <label class="heading">Summary Of Upcoming Activities: </label>
-    <p class="content">{{upcoming_act}}</p>
+  <div class="container middle">
+    <label class="heading point">Introduction</label>
   </div>
   <div class="container">
-    <label class="heading">Summary Of Logistics: </label>
-    <p class="content">{{logistics}}</p>
+    <label class="heading">Overview of the Incident : </label>
+    <p class="content">{{inc_overview}}</p>
   </div>
   <div class="container">
-    <label class="heading">Summary Of Short Based Activities: </label>
-    <p class="content">{{shore_act}}</p>
+    <label class="heading">Investigation Team Members: </label>
+    <table width="100%">
+      {{#each team_members}}
+        <tr>
+          <td class="sub-heading">Name :</td>
+          <td class="tb-sub-centent">{{this.name}}</td>
+          <td class="sub-heading">Designation :</td>
+          <td class="tb-sub-centent">{{this.designation}}</td>
+          <td class="sub-heading">Member's Designation :</td>
+          <td class="tb-sub-centent">{{this.inv_team_designation}}</td>
+        </tr>
+      {{/each}}
+    </table>
   </div>
   <div class="container">
-    <label class="heading">Others: </label>
-    <p class="content">{{others}}</p>
+    <label class="heading">Investigation Methodology: </label>
+    <p class="content">{{inv_method}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Background</label>
+  </div>
+  <div class="container">
+    <label class="heading">Facility Information / Project Background: </label>
+    <p class="content">{{facility_info}}</p>
+  </div>
+  <div class="container">
+    <label class="heading">Other Relevant Facts for the Facility: </label>
+    <p class="content">{{other_fact}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Description of the Incident</label>
+  </div>
+  <div class="container">
+    <p class="content">{{inc_desc}}</p>
+  </div>
+  <div class="container">
+    <label class="heading">Details of the Incident: </label>
+    <p class="content">{{inc_dtls}}</p>
+  </div>
+  <div class="container">
+    <label class="heading">Details of Injured Person: </label>
+    <p class="content">{{injured_person_dtls}}</p>
+  </div>
+  <div class="container">
+    <label class="heading">Sequence of Event: </label>
+    <p class="content">{{seq_of_inv}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Impact of Incident</label>
+  </div>
+  <div class="container">
+    <p class="content">{{inc_impact}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Result of Incident Investigation</label>
+  </div>
+  <div class="container">
+    <p class="content">{{inc_inv_res}}</p>
+  </div>
+  <div class="container">
+    <label class="heading">Analysis of Findings: </label>
+    <p class="content">{{analysis_of_findings}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Conclusion</label>
+  </div>
+  <div class="container">
+    <p class="content">{{conclusion}}</p>
+  </div>
+  <div class="container middle">
+    <label class="heading point">Recommendation</label>
+  </div>
+  <div class="container">
+    <p class="content">{{recommendation}}</p>
   </div>
   <div class="container">
     <label class="heading">Attchments:</label>
-    <div class="img-content">
-      <img src='{{img}}' alt="">
-    </div>
+    {{#ifCond file_1 '!=' ''}}
+      <div class="img-content">
+        <img src='{{file1}}' alt="">
+        <p>{{file1_dtls}}</p>
+      </div>
+    {{/ifCond}}
+    {{#ifCond file_2 '!=' ''}}
+      <div class="img-content">
+        <img src='{{file2}}' alt="">
+        <p>{{file2_dtls}}</p>
+      </div>
+    {{/ifCond}}
+    {{#ifCond file_3 '!=' ''}}
+      <div class="img-content">
+        <img src='{{file3}}' alt="">
+        <p>{{file3_dtls}}</p>
+      </div>
+    {{/ifCond}}
   </div>
 </body>
 

@@ -3,7 +3,7 @@ const { F_Insert, F_Select, CreateActivity, F_Delete } = require('../modules/Mas
 const dateFormat = require('dateformat');
 const fs = require('fs');
 const upload = require('express-fileupload');
-const { SaveLessonFinal, MakePDF, MeetingPdfGen } = require('./LessonLearntRouter');
+const { SaveLessonFinal, MakePDF, MeetingPdfGen, InvestigationPdfGen } = require('./LessonLearntRouter');
 
 const FormRouter = express.Router();
 FormRouter.use(upload());
@@ -640,6 +640,7 @@ const SaveInvestigation = (data, file1, file2, file3) => {
         flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
         var res_dt = await F_Insert(table_name, fields, values, whr, flag)
         var investigation_id = data.id > 0 ? data.id : res_dt.lastId.insertId
+        var row_id = data.id > 0 ? data.id : td_investigation
 
         if (Array.isArray(JSON.parse(data.team_members)) && res_dt.suc > 0) {
             for (let dt of JSON.parse(data.team_members)) {
@@ -656,6 +657,9 @@ const SaveInvestigation = (data, file1, file2, file3) => {
                 }
             }
         }
+        if (data.final_flag == 'Y') {
+            await InvestigationPdfGen(data, file1, file2, file3, row_id)
+        }
         resolve(res_dt)
     })
 
@@ -671,22 +675,22 @@ FormRouter.post('/investigation', async (req, res) => {
 
     if (file1) {
         file1Name = file1.name.split(' ').join('_').split('-').join('_')
-        file1_path = 'forms/incident_investigation_report/' + file1Name
+        file1_path = 'uploads/investigation_report/' + file1Name
     }
 
     if (file2) {
         file2Name = file2.name.split(' ').join('_').split('-').join('_')
-        file2_path = 'forms/incident_investigation_report/' + file2Name
+        file2_path = 'uploads/investigation_report/' + file2Name
     }
 
     if (file3) {
         file3Name = file3.name.split(' ').join('_').split('-').join('_')
-        file3_path = 'forms/incident_investigation_report/' + file3Name
+        file3_path = 'uploads/investigation_report/' + file3Name
     }
 
 
-    var dir = 'assets/forms',
-        subdir = dir + '/incident_investigation_report';
+    var dir = 'assets/uploads',
+        subdir = dir + '/investigation_report';
     if (!fs.existsSync(subdir)) {
         fs.mkdirSync(subdir);
     }
@@ -733,7 +737,7 @@ FormRouter.post('/investigation', async (req, res) => {
 
 FormRouter.get('/investigation', async (req, res) => {
     var id = req.query.id
-    var select = `id, ref_no, inc_name, reported_by, reported_on, approved_by, approved_on, exec_summary, inc_overview, inv_method, facility_info, other_fact, inc_desc, inc_dtls, injured_person_dtls, seq_of_inv, inc_impact, inc_inv_res, analysis_of_findings, conclusion, recommendation, file_1, file1_dtls, file_2, file2_dtls, file_3, file3_dtls, final_flag`,
+    var select = `id, ref_no, inc_name, reported_by, reported_on, approved_by, approved_on, exec_summary, inc_overview, inv_method, facility_info, other_fact, inc_desc, inc_dtls, injured_person_dtls, seq_of_inv, inc_impact, inc_inv_res, analysis_of_findings, conclusion, recommendation, file_1, file1_dtls, file_2, file2_dtls, file_3, file3_dtls, pdf_location, final_flag`,
         table_name = `td_investigation`,
         whr = id > 0 ? `id = ${id}` : null,
         order = null;
