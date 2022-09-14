@@ -609,4 +609,179 @@ FormRouter.post('/meeting', async (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// INVESTIGATION REPORT ///////////////////////////////////////
+const SaveInvestigation = (data, file1, file2, file3) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+        table_name, fields, values, whr, flag;
+    var file1_field = file1 ? ((data.id > 0) ? `, file_1 = "${file1}"` : `, file_1`) : '',
+        file2_field = file2 ? ((data.id > 0) ? `, file_2 = "${file2}"` : `, file_2`) : '',
+        file3_field = file3 ? ((data.id > 0) ? `, file_3 = "${file3}"` : `, file_3`) : '',
+        file1_val = file1 ? `, "${file1}"` : '',
+        file2_val = file2 ? `, "${file2}"` : '',
+        file3_val = file3 ? `, "${file3}"` : '';
+    return new Promise(async (resolve, reject) => {
+        table_name = 'td_investigation'
+        fields = data.id > 0 ? `ref_no = "${data.ref_no}", inc_name = "${data.inc_name}", reported_by = "${data.reported_by}", 
+        reported_on = "${data.reported_on}", approved_by = "${data.approved_by}", approved_on = "${data.approved_on}", 
+        exec_summary = "${data.exec_summary}", inc_overview = "${data.inc_overview}", inv_method = "${data.inv_method}", 
+        facility_info = "${data.facility_info}", other_fact = "${data.other_fact}", inc_desc = "${data.inc_desc}", 
+        inc_dtls = "${data.inc_dtls}", injured_person_dtls = "${data.injured_person_dtls}", seq_of_inv = "${data.seq_of_inv}", 
+        inc_impact = "${data.inc_impact}", inc_inv_res = "${data.inc_inv_res}", analysis_of_findings = "${data.analysis_of_findings}", 
+        conclusion = "${data.conclusion}", recommendation = "${data.recommendation}", file1_dtls = "${data.file1_dtls}", 
+        file2_dtls = "${data.file2_dtls}", file3_dtls = "${data.file3_dtls}", final_flag = "${data.final_flag}", modified_by = "${data.user}", modified_at = "${datetime}" ${file1_field}  ${file2_field}  ${file3_field}` :
+            `(ref_no, inc_name, reported_by, reported_on, approved_by, approved_on, exec_summary, inc_overview, inv_method, facility_info, other_fact, inc_desc, inc_dtls, injured_person_dtls, seq_of_inv, inc_impact, inc_inv_res, analysis_of_findings, conclusion, recommendation, file1_dtls, file2_dtls, file3_dtls, final_flag, created_by, created_at  ${file1_field}  ${file2_field}  ${file3_field})`
+        values = `("${data.ref_no}", "${data.inc_name}", "${data.reported_by}", "${data.reported_on}", "${data.approved_by}", 
+        "${data.approved_on}", "${data.exec_summary}", "${data.inc_overview}", "${data.inv_method}", "${data.facility_info}", 
+        "${data.other_fact}", "${data.inc_desc}", "${data.inc_dtls}", "${data.injured_person_dtls}", "${data.seq_of_inv}", 
+        "${data.inc_impact}", "${data.inc_inv_res}", "${data.analysis_of_findings}", "${data.conclusion}", "${data.recommendation}", 
+        "${data.file1_dtls}", "${data.file2_dtls}", "${data.file3_dtls}", "${data.final_flag}", "${data.user}", "${datetime}" ${file1_val} ${file2_val} ${file3_val})`
+        whr = data.id > 0 ? `id = ${data.id}` : null
+        flag = data.id > 0 ? 1 : 0
+        flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
+        var res_dt = await F_Insert(table_name, fields, values, whr, flag)
+        var investigation_id = data.id > 0 ? data.id : res_dt.lastId.insertId
+
+        if (Array.isArray(JSON.parse(data.team_members)) && res_dt.suc > 0) {
+            for (let dt of JSON.parse(data.team_members)) {
+                table_name = 'td_investigation_team'
+                fields = dt.id > 0 ? `ref_no = "${data.ref_no}", name = "${dt.name}", designation = "${dt.designation}", inv_team_designation = "${dt.inv_team_designation}", modified_by = "${data.user}", modified_at = "${datetime}"` :
+                    '(ref_no, investi_id, name, designation, inv_team_designation, created_by, created_at)'
+                values = `("${data.ref_no}", "${investigation_id}", "${dt.name}", "${dt.designation}", "${dt.inv_team_designation}", "${data.user}", "${datetime}")`
+                whr = dt.id > 0 ? `id = ${dt.id}` : null
+                flag = dt.id > 0 ? 1 : 0
+                res_dt = await F_Insert(table_name, fields, values, whr, flag)
+                if (res_dt.suc == 0) {
+                    res_dt = { suc: 0, msg: res_dt.msg }
+                    break;
+                }
+            }
+        }
+        resolve(res_dt)
+    })
+
+}
+FormRouter.post('/investigation', async (req, res) => {
+    var data = req.body,
+        file1 = req.files ? (req.files.file1 ? req.files.file1 : null) : null,
+        file2 = req.files ? (req.files.file2 ? req.files.file2 : null) : null,
+        file3 = req.files ? (req.files.file3 ? req.files.file3 : null) : null,
+        file1_path = null,
+        file2_path = null,
+        file3_path = null, res_dt, file1Name, file2Name, file3Name;
+
+    if (file1) {
+        file1Name = file1.name.split(' ').join('_').split('-').join('_')
+        file1_path = 'forms/incident_investigation_report/' + file1Name
+    }
+
+    if (file2) {
+        file2Name = file2.name.split(' ').join('_').split('-').join('_')
+        file2_path = 'forms/incident_investigation_report/' + file2Name
+    }
+
+    if (file3) {
+        file3Name = file3.name.split(' ').join('_').split('-').join('_')
+        file3_path = 'forms/incident_investigation_report/' + file3Name
+    }
+
+
+    var dir = 'assets/forms',
+        subdir = dir + '/incident_investigation_report';
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    }
+
+    if (file1) {
+        file1.mv('assets/' + file1_path, async (err) => {
+            if (err) {
+                console.log(`${file1Name} not uploaded`);
+                res_dt = { suc: 0, msg: `${file1Name} not uploaded` }
+                res.send(res_dt)
+            } else {
+                console.log(`Successfully ${file1Name} uploaded`);
+            }
+        })
+    }
+
+    if (file2) {
+        file2.mv('assets/' + file2_path, async (err) => {
+            if (err) {
+                console.log(`${file2Name} not uploaded`);
+                res_dt = { suc: 0, msg: `${file2Name} not uploaded` }
+                res.send(res_dt)
+            } else {
+                console.log(`Successfully ${file2Name} uploaded`);
+            }
+        })
+    }
+
+    if (file3) {
+        file3.mv('assets/' + file3_path, async (err) => {
+            if (err) {
+                console.log(`${file3Name} not uploaded`);
+                res_dt = { suc: 0, msg: `${file3Name} not uploaded` }
+                res.send(res_dt)
+            } else {
+                console.log(`Successfully ${file3Name} uploaded`);
+            }
+        })
+    }
+
+    res_dt = await SaveInvestigation(data, file1_path, file2_path, file3_path);
+    res.send(res_dt);
+})
+
+FormRouter.get('/investigation', async (req, res) => {
+    var id = req.query.id
+    var select = `id, ref_no, inc_name, reported_by, reported_on, approved_by, approved_on, exec_summary, inc_overview, inv_method, facility_info, other_fact, inc_desc, inc_dtls, injured_person_dtls, seq_of_inv, inc_impact, inc_inv_res, analysis_of_findings, conclusion, recommendation, file_1, file1_dtls, file_2, file2_dtls, file_3, file3_dtls, final_flag`,
+        table_name = `td_investigation`,
+        whr = id > 0 ? `id = ${id}` : null,
+        order = null;
+    var res_dt = await F_Select(select, table_name, whr, order);
+
+    if (id > 0) {
+        select = `id, ref_no, investi_id, name, designation, inv_team_designation`
+        table_name = `td_investigation_team`
+        whr = `investi_id = ${id}`
+        order = null;
+        var dt = await F_Select(select, table_name, whr, order);
+        if (dt.suc > 0) {
+            res_dt.msg[0]['team_members'] = dt.msg
+            // console.log(res_dt);
+            res.send(res_dt)
+        } else {
+            res_dt.msg[0]['team_members'] = null
+            res.send(res_dt)
+        }
+    } else {
+        res.send(res_dt)
+    }
+
+})
+
+FormRouter.get('/investigation_del', async (req, res) => {
+    var flag = req.query.flag,
+        id = req.query.id, table_name, whr, res_dt;
+    switch (flag) {
+        case '1':
+            table_name = `td_investigation`
+            whr = `id = ${id}`
+            res_dt = await F_Delete(table_name, whr)
+            table_name = `td_investigation_team`
+            whr = `investi_id = ${id}`
+            res_dt = await F_Delete(table_name, whr)
+            break;
+        case '2':
+            table_name = `td_investigation_team`
+            whr = `id = ${id}`
+            res_dt = await F_Delete(table_name, whr)
+            break;
+
+        default:
+            break;
+    }
+    res.send(res_dt)
+})
+//////////////////////////////////////////////////////////////////////////////////
+
 module.exports = { FormRouter, lesson_file_save };
