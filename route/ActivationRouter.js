@@ -126,7 +126,8 @@ ActivationRouter.post('/activation_team', async (req, res) => {
 		activity = `A Team ${data.team_name} is ${flag_type} for the incident named ${data.inc_name} BY ${data.user} AT ${datetime}`;
 		activity_res = await CreateActivity(user_id, datetime, act_type, activity);
 
-		await MakeCall(emp.emp_id, data.inc_name);
+		// CALL NOTIFICATION
+		// await MakeCall(emp.emp_id, data.inc_name);
 
 		if (dt.suc == 0) break;
 	}
