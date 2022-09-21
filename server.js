@@ -246,10 +246,13 @@ app.get('/', (req, res) => {
 })
 
 app.get('/send_mail', async (req, res) => {
-	const { AssignTeamMail } = require('./modules/EmailModule');
-	var data = req.query;
-	var res_dt = await AssignTeamMail(data.email, data.name, data.team);
-	res.send(res_dt)
+	const { TestMail } = require('./modules/EmailModule');
+	var dt = await TestMail();
+	res.send(dt)
+	// const { AssignTeamMail } = require('./modules/EmailModule');
+	// var data = req.query;
+	// var res_dt = await AssignTeamMail(data.email, data.name, data.team);
+	// res.send(res_dt)
 })
 
 app.get('/test1', async (req, res) => {
