@@ -47,14 +47,14 @@ AdmRouter.post('/offshore', async (req, res) => {
         values = `("${data.offshore_name}", "${data.location}", "${data.lattitude}", "${data.longitude}", "${data.workers_no}", "${data.status}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	// store record in td_activity
-	var user_id = data.user,
+    flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    // store record in td_activity
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `OFFSHORE ${data.offshore_name} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -99,13 +99,13 @@ AdmRouter.post('/incident', async (req, res) => {
         values = `("${data.incident_type}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `INCIDENT ${data.incident_type} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -151,13 +151,13 @@ AdmRouter.post('/tier', async (req, res) => {
         values = `("${data.tier_type}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `TIER ${data.tier_type} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -203,13 +203,13 @@ AdmRouter.post('/position', async (req, res) => {
         values = `("${data.position}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `POSITION ${data.position} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -255,13 +255,13 @@ AdmRouter.post('/department', async (req, res) => {
         values = `("${data.department}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `DEPARTMENT ${data.department} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -292,14 +292,14 @@ AdmRouter.get('/department_del', async (req, res) => {
 AdmRouter.get('/employee', async (req, res) => {
     var id = req.query.id,
         flag = req.query.flag,
-		emp_id = req.query.emp_id,
-		emp_whr = emp_id > 0 ? `AND employee_id = ${emp_id}` : '',
+        emp_id = req.query.emp_id,
+        emp_whr = emp_id > 0 ? `AND employee_id = ${emp_id}` : '',
         table_name = 'md_employee',
         select = 'id, employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, user_status, emp_status, approval_flag, img, user_role',
         whr = flag != '' ? (id > 0 ? `id = ${id} AND delete_flag = 'N'` : `emp_status = "${flag}" AND delete_flag = 'N' ${emp_whr}`) : `delete_flag = 'N' ${emp_whr}`;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
-	//res.send({select, table_name, whr});
+    //res.send({select, table_name, whr});
 })
 
 AdmRouter.post('/employee', async (req, res) => {
@@ -316,25 +316,26 @@ AdmRouter.post('/employee', async (req, res) => {
     var c = alpha[Math.floor(Math.random() * 62)];
     var d = alpha[Math.floor(Math.random() * 62)];
     var e = alpha[Math.floor(Math.random() * 62)];
-    var sum = a + b + c + d + e; //'123';
+    var sum = '123'; //a + b + c + d + e; 
     var pwd = bcrypt.hashSync(sum, 10);
     var dt = '';
+    var approval_flag = 'Y'; //data.approval_flag;
 
     var table_name = 'md_employee',
         fields = data.id > 0 ? `employee_id = "${data.employee_id}", emp_name = "${data.name}", emp_depart_id = "${data.department}", emp_pos_id = "${data.position}", email = "${data.email}", p_code = "${data.p_code}", personal_cnct_no = "${data.p_contact}", er_code = "${data.er_code}", er_cnct_no = "${data.er_contact}", user_type = "${data.user_type}", approval_flag = "${data.approval_flag}", emp_status = "${data.emp_status}", user_role = '${data.user_role}', modified_by = "${data.user}", modified_at = "${datetime}"` :
             '(employee_id, emp_name, emp_depart_id, emp_pos_id, email, password, p_code, personal_cnct_no, er_code, er_cnct_no, user_type, approval_flag, emp_status, user_role, created_by, created_at)',
-        values = `("${data.employee_id}", "${data.name}", "${data.department}", "${data.position}", "${data.email}", "${pwd}", "${data.p_code}", "${data.p_contact}", "${data.er_code}", "${data.er_contact}", "${data.user_type}", "${data.approval_flag}", "${data.emp_status}", '${data.user_role}', "${data.user}", "${datetime}")`,
+        values = `("${data.employee_id}", "${data.name}", "${data.department}", "${data.position}", "${data.email}", "${pwd}", "${data.p_code}", "${data.p_contact}", "${data.er_code}", "${data.er_contact}", "${data.user_type}", "${approval_flag}", "${data.emp_status}", '${data.user_role}', "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `An employee, ${data.name} having id: ${data.employee_id} email: ${data.email} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-    if (flag == 0) {
-        var email = await UserCredential(data.email, data.name, sum);
-    }
+    // if (flag == 0) {
+    //     var email = await UserCredential(data.email, data.name, sum);
+    // }
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
@@ -366,17 +367,17 @@ AdmRouter.get('/check_contact_personal', async (req, res) => {
         select = 'COUNT(id) as count_dt',
         whr = `personal_cnct_no = "${no}" AND delete_flag = 'N'`;
     var dt = await F_Select(select, table_name, whr, null),
-		res_dt = dt.msg[0].count_dt > 0 ? {suc: 0, msg: 'Contact Personal Already Exist'} : {suc: 1, msg: 'Fresh Contact Personal'};
+        res_dt = dt.msg[0].count_dt > 0 ? { suc: 0, msg: 'Contact Personal Already Exist' } : { suc: 1, msg: 'Fresh Contact Personal' };
     res.send(res_dt);
 })
 
 AdmRouter.get('/check_contact_er', async (req, res) => {
-	var no = req.query.no,
+    var no = req.query.no,
         table_name = 'md_employee',
         select = 'COUNT(id) as count_dt',
         whr = `er_cnct_no = "${no}" AND delete_flag = 'N'`;
     var dt = await F_Select(select, table_name, whr, null),
-		res_dt = dt.msg[0].count_dt > 0 ? {suc: 0, msg: 'Contact ER Already Exist'} : {suc: 1, msg: 'Fresh Contact ER'};
+        res_dt = dt.msg[0].count_dt > 0 ? { suc: 0, msg: 'Contact ER Already Exist' } : { suc: 1, msg: 'Fresh Contact ER' };
     res.send(res_dt);
 })
 ///////////////////////////////////////////////////
@@ -400,9 +401,9 @@ AdmRouter.post('/teams', async (req, res) => {
         values = `("${data.team_type}", "${data.team_name}", "${data.user}", "${datetime}")`,
         whr = `id = ${data.id}`,
         flag = data.id > 0 ? 1 : 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `A team named ${data.team_name} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);

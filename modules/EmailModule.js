@@ -14,8 +14,8 @@ const TestMail = async () => {
     return new Promise(async (resolve, reject) => {
         // FOR LOCAL
         var transporter = nodemailer.createTransport({
-            service: 'smtp.gmail.com',
-            port: 465,
+            service: 'gmail',//'smtp.gmail.com',
+            port: 587,
             secure: true,
             auth: {
                 user: 'info@www.er-360.com',
