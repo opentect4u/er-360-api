@@ -146,7 +146,7 @@ const SaveLessonFinal = async (data) => {
     })
 }
 
-AddModrouter.get('lesson_file_del', async (req, res) => {
+AddModrouter.get('/lesson_file_del', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_lesson_file',
         whr = `id = ${id}`;
