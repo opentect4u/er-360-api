@@ -316,10 +316,10 @@ AdmRouter.post('/employee', async (req, res) => {
     var c = alpha[Math.floor(Math.random() * 62)];
     var d = alpha[Math.floor(Math.random() * 62)];
     var e = alpha[Math.floor(Math.random() * 62)];
-    var sum = '123'; //a + b + c + d + e; 
+    var sum = a + b + c + d + e;
     var pwd = bcrypt.hashSync(sum, 10);
     var dt = '';
-    var approval_flag = 'Y'; //data.approval_flag;
+    var approval_flag = data.approval_flag;
 
     var table_name = 'md_employee',
         fields = data.id > 0 ? `employee_id = "${data.employee_id}", emp_name = "${data.name}", emp_depart_id = "${data.department}", emp_pos_id = "${data.position}", email = "${data.email}", p_code = "${data.p_code}", personal_cnct_no = "${data.p_contact}", er_code = "${data.er_code}", er_cnct_no = "${data.er_contact}", user_type = "${data.user_type}", approval_flag = "${data.approval_flag}", emp_status = "${data.emp_status}", user_role = '${data.user_role}', modified_by = "${data.user}", modified_at = "${datetime}"` :
@@ -333,9 +333,9 @@ AdmRouter.post('/employee', async (req, res) => {
         act_type = flag > 0 ? 'M' : 'C',
         activity = `An employee, ${data.name} having id: ${data.employee_id} email: ${data.email} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-    // if (flag == 0) {
-    //     var email = await UserCredential(data.email, data.name, sum);
-    // }
+    if (flag == 0) {
+        var email = await UserCredential(data.email, data.name, sum);
+    }
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })

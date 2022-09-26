@@ -81,7 +81,7 @@ ActivationRouter.post('/activation', async (req, res) => {
 	}
 
 	// EMAIL NOTIFICATION
-	// var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
+	var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
 
 	res.send(dt)
 
@@ -133,7 +133,7 @@ ActivationRouter.post('/activation_team', async (req, res) => {
 	}
 
 	// EMAIL NOTIFICATION
-	// var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
+	var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
 
 	res.send(dt)
 })
