@@ -9,11 +9,11 @@ var api_url = 'https://api.er-360/';
 
 // SEND EMAIL WITH GMAIL
 var transporter = nodemailer.createTransport({
-    pool: true,
-    service: 'gmail', //'smtp.gmail.com', //,
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: false,
+    host: "smtp.gmail.com",
+    secureConnection: false,
+    port: 587,
+    requiresAuth: true,
+    domains: ["gmail.com", "googlemail.com"],
     auth: {
         user: 'info@www.er-360.com',
         pass: 'Cook!es2022'
