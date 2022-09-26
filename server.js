@@ -255,6 +255,40 @@ app.get('/send_mail', async (req, res) => {
 	// res.send(res_dt)
 })
 
+app.get('/send_message', (req, res) => {
+	var request = require('request');
+	var to_number = req.query.to_number;
+	if (to_number) {
+		var options = {
+			'method': 'POST',
+			'url': 'https://graph.facebook.com/v14.0/109023558638715/messages',
+			'headers': {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer EABYnVzc5YyEBAKsRs0oZBSOR037iH5BhiB0wHIjNonlGiIa7t7bKwb6Krxn3CMNxdZB7M9mYfMklGIZCJSpArzz19hX3ZABXM98niwUVcrsjVDKOGENscdO0RDS2jh50Ruaq61ZASg9IWjcUqOnCZAPbQ25c2ZCPLtrNaYd72681RwKYQdSwLPWR8Sb71Do6PygbWWPkDKY50U3i4aGSucv'
+			},
+			body: JSON.stringify({
+				"messaging_product": "whatsapp",
+				"to": to_number,
+				"type": "template",
+				"template": {
+					"name": "hello_world",
+					"language": {
+						"code": "en_US"
+					}
+				}
+			})
+
+		};
+		request(options, function (error, response) {
+			if (error) throw new Error(error);
+			console.log(response.body);
+			res.send(response.body)
+		});
+	} else {
+		res.send('To number is not provided')
+	}
+})
+
 app.get('/test1', async (req, res) => {
 	var datetime = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss');
 	var sql = `SELECT id, team_id, inc_id FROM td_activation WHERE active_flag = 'Y'`;

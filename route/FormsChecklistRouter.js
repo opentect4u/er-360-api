@@ -471,7 +471,7 @@ const LessonFileSave = async (files, data) => {
         fileName = '',
         filePath = '',
         img_upload = '',
-        img_path = [];
+        img_path = new Array;
     var dir = 'assets/uploads',
         subdir = dir + '/lesson';
     if (!fs.existsSync(subdir)) {
@@ -493,37 +493,45 @@ const LessonFileSave = async (files, data) => {
 
     var res_dt = { suc: inc_dt.suc, msg: inc_dt.msg }
     return new Promise(async (resolve, reject) => {
-        if (files && lesson_id) {
-            if (Array.isArray(files)) {
-                let i = 0
-                for (let file of files) {
-                    fileName = file.name
-                    filePath = 'uploads/lesson/' + fileName
-                    file.mv('assets/' + filePath, async (err) => {
+        // if (files && lesson_id) {
+        if (Array.isArray(files)) {
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    fileName = files[i].name;
+                    filePath = 'uploads/lesson/' + fileName;
+
+                    // console.log('fileName', fileName, 'filePath', filePath);
+                    files[i].mv('assets/' + filePath, (err) => {
+                        console.log('file_' + i, files[i]);
                         if (err) {
                             console.log(`${fileName} not uploaded`);
                         } else {
                             console.log(`Successfully ${fileName} uploaded`);
-                            fields = '(lesson_id, inc_id, file_name, file_path, created_by, created_at)'
-                            values = `("${lesson_id}", "${data.inc_id}", "${fileName}", "${filePath}", "${data.user}", "${datetime}")`
-                            table_name = 'td_lesson_file'
-                            where = null
-                            flag = 0
-                            img_upload = await F_Insert(table_name, fields, values, where, flag)
-                            img_path.push({ id: i, path: `${server_url}${filePath}` })
+                            img_path.push({ id: i, path: `"${server_url}${filePath}"` })
+                            // console.log(`${server_url}${filePath}`);
                         }
                     })
-                    i++;
+                    fields = '(lesson_id, inc_id, file_name, file_path, created_by, created_at)'
+                    values = `("${lesson_id}", "${data.inc_id}", "${fileName}", "${filePath}", "${data.user}", "${datetime}")`
+                    table_name = 'td_lesson_file'
+                    where = null
+                    flag = 0
+                    img_upload = await F_Insert(table_name, fields, values, where, flag)
+                    // console.log('img_path', img_path);
                     if (img_upload.suc == 0) {
                         res_dt = { suc: 0, msg: `Error, While Uploading ${fileName}`, err: img_upload.msg }
                         break;
                     }
                 }
-                if (data.final_flag == 'Y') {
-                    res_dt = await LessonPDFGenerate(data, img_path)
-                }
-                resolve(res_dt)
             } else {
+                img_path = data.file
+            }
+            if (data.final_flag == 'Y') {
+                res_dt = await LessonPDFGenerate(data, img_path, lesson_id)
+            }
+            resolve(res_dt)
+        } else {
+            if (files) {
                 fileName = files.name
                 filePath = 'uploads/lesson/' + fileName
                 files.mv('assets/' + filePath, async (err) => {
@@ -543,22 +551,25 @@ const LessonFileSave = async (files, data) => {
                         img_path.push({ id: 0, path: `${server_url}${filePath}` })
                     }
                 })
-                if (data.final_flag == 'Y') {
-                    res_dt = await LessonPDFGenerate(data, img_path)
-                }
-                resolve(res_dt)
-            }
-        } else {
-            if (data.final_flag == 'Y') {
-
             } else {
-                resolve(res_dt)
+                img_path = data.file
             }
+            if (data.final_flag == 'Y') {
+                res_dt = await LessonPDFGenerate(data, img_path, lesson_id)
+            }
+            resolve(res_dt)
         }
+        // } else {
+        //     if (data.final_flag == 'Y') {
+
+        //     } else {
+        //         resolve(res_dt)
+        //     }
+        // }
     })
 }
 
-const LessonPDFGenerate = async (data, img_path) => {
+const LessonPDFGenerate = async (data, img_path, id) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_dt = '',
         catg_id = 17;
@@ -569,29 +580,33 @@ const LessonPDFGenerate = async (data, img_path) => {
     data.date = dateFormat(new Date(), "dd/mm/yyyy")
     data['img'] = img_path.length > 0 ? img_path : null
 
-    var pdf_dt = await MakePDF(template, upload_path, data, header = 'Lesson Learnt')
-    if (pdf_dt.suc > 0) {
-        var ins_table_name = 'td_lesson',
-            fields = `pdf_location = "${file_path}"`,
-            values = null,
-            ins_where = `id = ${data.id}`,
-            flag = 1;
-        res_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
-        ins_table_name = 'td_forms'
-        fields = '(catg_id, form_name, form_path, created_by, created_at)'
-        values = `("${catg_id}", "Lesson Learnt", "${file_path}", "${data.user}", "${datetime}")`
-        ins_where = null
-        flag = 0
-        var r_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
-    } else {
-        res_dt = pdf_dt
-    }
-    resolve(res_dt)
+    return new Promise(async (resolve, reject) => {
+
+        var pdf_dt = await MakePDF(template, upload_path, data, header = 'Lesson Learnt')
+        if (pdf_dt.suc > 0) {
+            var ins_table_name = 'td_lesson',
+                fields = `pdf_location = "${file_path}"`,
+                values = null,
+                ins_where = `id = ${id}`,
+                flag = 1;
+            res_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+            ins_table_name = 'td_forms'
+            fields = '(catg_id, form_name, form_path, created_by, created_at)'
+            values = `("${catg_id}", "Lesson Learnt", "${file_path}", "${data.user}", "${datetime}")`
+            ins_where = null
+            flag = 0
+            var r_dt = await F_Insert(ins_table_name, fields, values, ins_where, flag)
+        } else {
+            res_dt = pdf_dt
+        }
+        resolve(res_dt)
+    })
 }
 
 FormRouter.post('/lesson', async (req, res) => {
     var files = req.files ? (req.files.file ? req.files.file : null) : null
     var data = req.body
+    // console.log(files);
     var res_dt = await LessonFileSave(files, data)
     res.send(res_dt)
 })
