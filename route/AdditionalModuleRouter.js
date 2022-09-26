@@ -7,11 +7,14 @@ const fs = require('fs');
 // var server_url = 'http://localhost:3000/'
 var server_url = 'https://api.er-360.com/'
 
-const LessonRouter = express.Router();
+const AddModrouter = express.Router();
 
+// GENERATE PDF //
 const MakePDF = async (template, upload_path, file_data, header) => {
+    // READ HTML TEMPLATE FROM GIVEN PATH //
     var html = fs.readFileSync(template, "utf8");
 
+    // SET PDF OPTIONS //
     var options = {
         format: "A4",
         orientation: "portrait",
@@ -22,12 +25,15 @@ const MakePDF = async (template, upload_path, file_data, header) => {
         }
     };
 
+    // EMBEDD DATA INTO HTML TEMPLATE //
     var document = {
         html: html,
         data: file_data,
         path: upload_path,
         type: "",
     };
+
+    // GENERATE PDF AND RETURN RESPONSE //
     return new Promise((resolve, reject) => {
         var res_dt = ''
         pdf
@@ -43,10 +49,10 @@ const MakePDF = async (template, upload_path, file_data, header) => {
                 resolve(res_dt)
             });
     })
-
 }
+// END //
 
-LessonRouter.get('/lalala', async (req, res) => {
+AddModrouter.get('/lalala', async (req, res) => {
     // var html = fs.readFileSync('assets/Form.pdf', "utf8");
     // console.log(html);
 
@@ -62,14 +68,15 @@ LessonRouter.get('/lalala', async (req, res) => {
     // doc.end();
 })
 
-LessonRouter.get('/lesson', async (req, res) => {
+// FETCH LESSON LEARNT DATA //
+AddModrouter.get('/lesson', async (req, res) => {
     var id = req.query.id,
         inc_id = req.query.inc_id,
         dt = '',
         select, table_name, where, order;
     if (id > 0) {
         table_name = 'td_lesson a LEFT JOIN td_lesson_file b ON a.id=b.lesson_id AND a.inc_id=b.inc_id'
-        select = `a.id, a.inc_id, a.reff_no, a.title, a.date, a.description, a.recom, a.final_flag, a.pdf_location, IF((SELECT COUNT(c.id) FROM td_lesson_file c WHERE a.id=c.lesson_id AND a.inc_id=c.inc_id) > 0, 1, 0) isFile, b.file_name, b.file_path`
+        select = `a.id, a.inc_id, a.reff_no, a.title, a.date, a.description, a.recom, a.final_flag, a.pdf_location, IF((SELECT COUNT(c.id) FROM td_lesson_file c WHERE a.id=c.lesson_id AND a.inc_id=c.inc_id) > 0, 1, 0) isFile, b.file_name, b.file_path, b.id as file_id`
         where = inc_id > 0 ? `a.inc_id = ${inc_id}` : (id > 0 ? `a.id = ${id}` : '')
         order = null;
         dt = await F_Select(select, table_name, where, order)
@@ -82,6 +89,7 @@ LessonRouter.get('/lesson', async (req, res) => {
     }
     res.send(dt)
 })
+// END //
 
 const SaveLessonFinal = async (data) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
@@ -136,10 +144,17 @@ const SaveLessonFinal = async (data) => {
             resolve(res_dt)
         }
     })
-
 }
 
-// LessonRouter.post('/lesson_final1', async (req, res) => {
+AddModrouter.get('lesson_file_del', async (req, res) => {
+    var id = req.query.id,
+        table_name = 'td_lesson_file',
+        whr = `id = ${id}`;
+    var res_dt = await F_Delete(table_name, whr)
+    res.send(res_dt)
+})
+
+// AddModrouter.post('/lesson_final1', async (req, res) => {
 //     var data = req.body
 //     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
 //     var table_name = 'md_repository_category',
@@ -192,7 +207,9 @@ const SaveLessonFinal = async (data) => {
 //     res.send(res_dt)
 // })
 
-LessonRouter.get('/media_rel', async (req, res) => {
+// MEDIA RELEASE //
+// FETCH MEDIA RELEASE DATA //
+AddModrouter.get('/media_rel', async (req, res) => {
     var id = req.query.id,
         inc_id = req.query.inc_id,
         table_name = 'td_media_release',
@@ -202,8 +219,10 @@ LessonRouter.get('/media_rel', async (req, res) => {
     var dt = await F_Select(select, table_name, where, order);
     res.send(dt)
 })
+// END //
 
-LessonRouter.post('/media_rel', async (req, res) => {
+// MEDIA RELEASE SAVE //
+AddModrouter.post('/media_rel', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
     var table_name = 'td_media_release',
@@ -222,8 +241,10 @@ LessonRouter.post('/media_rel', async (req, res) => {
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
+// END //
 
-LessonRouter.post('/media_rel_final', async (req, res) => {
+// MEDIA RELEASE FINAL SAVE //
+AddModrouter.post('/media_rel_final', async (req, res) => {
     var data = req.body
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
     var table_name = 'md_repository_category',
@@ -285,8 +306,11 @@ LessonRouter.post('/media_rel_final', async (req, res) => {
     }
     res.send(res_dt)
 })
+// END //
 
-LessonRouter.get('/holding', async (req, res) => {
+// HOLDING STATEMENT //
+// FETCH HOLDING STATEMENT DATA //
+AddModrouter.get('/holding', async (req, res) => {
     var id = req.query.id,
         inc_id = req.query.inc_id,
         table_name = 'td_holding',
@@ -296,8 +320,10 @@ LessonRouter.get('/holding', async (req, res) => {
     var dt = await F_Select(select, table_name, where, order);
     res.send(dt)
 })
+// END //
 
-LessonRouter.post('/holding', async (req, res) => {
+// HOLDING STATEMENT SAVE //
+AddModrouter.post('/holding', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
     var table_name = 'td_holding',
@@ -316,8 +342,10 @@ LessonRouter.post('/holding', async (req, res) => {
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
+// END //
 
-LessonRouter.post('/holding_final', async (req, res) => {
+// HOLDING STATEMENT FINAL SAVE //
+AddModrouter.post('/holding_final', async (req, res) => {
     var data = req.body
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
     var table_name = 'md_repository_category',
@@ -394,7 +422,9 @@ LessonRouter.post('/holding_final', async (req, res) => {
     }
     res.send(res_dt)
 })
+// END //
 
+// WEEKLY MEETING PDF GENERATION //
 const MeetingPdfGen = async (data, file_path) => {
     var table_name, select, whr, order, res_dt;
     var date = dateFormat(new Date(), "yyyy_mm_dd"),
@@ -441,7 +471,9 @@ const MeetingPdfGen = async (data, file_path) => {
         }
     })
 }
+// END //
 
+// INCIDENT INVESTIGATION REPORT PDF GENERATION //
 const InvestigationPdfGen = async (data, file1, file2, file3, row_id) => {
     var table_name, select, whr, order, res_dt;
     var date = dateFormat(new Date(), "yyyy_mm_dd"),
@@ -486,8 +518,10 @@ const InvestigationPdfGen = async (data, file1, file2, file3, row_id) => {
         }
     })
 }
+// END //
 
-LessonRouter.get('/ab', async (req, res) => {
+// TESTING //
+AddModrouter.get('/ab', async (req, res) => {
     var data = {
         id: 0,
         inc_id: 19,
@@ -511,4 +545,4 @@ LessonRouter.get('/ab', async (req, res) => {
     res.send('da')
 })
 
-module.exports = { LessonRouter, SaveLessonFinal, MakePDF, MeetingPdfGen, InvestigationPdfGen }
+module.exports = { AddModrouter, SaveLessonFinal, MakePDF, MeetingPdfGen, InvestigationPdfGen }

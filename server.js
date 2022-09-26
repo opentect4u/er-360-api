@@ -207,7 +207,7 @@ const { UserRouter } = require('./route/UserRouter');
 const { RepoRouter } = require('./route/RepositoryRouter');
 const { ReportRouter } = require('./route/ReportRouter');
 const { DashboardRouter } = require('./route/DashboardRouter');
-const { LessonRouter } = require('./route/LessonLearntRouter');
+const { AddModrouter } = require('./route/AdditionalModuleRouter');
 const { Notificatio, UserStatus, ActiveUser, IncBoard, HelicupterStatus, ProbStatus, CasualtyStatus, EvacuationStatus, EventStatus, IncObjStatus } = require('./modules/NotificationModule');
 /////////////////////////////////////////////////////////////////////////
 
@@ -239,7 +239,7 @@ app.use(ReportRouter);
 
 app.use(DashboardRouter);
 
-app.use(LessonRouter)
+app.use(AddModrouter)
 
 app.get('/', (req, res) => {
 	res.send('Welcome');

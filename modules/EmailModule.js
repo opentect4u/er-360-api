@@ -7,51 +7,52 @@ const { F_Select } = require('./MasterModule');
 var client_url = 'https://er-360/#/';
 var api_url = 'https://api.er-360/';
 
+// SEND EMAIL WITH GMAIL
+var transporter = nodemailer.createTransport({
+    service: 'gmail',//'smtp.gmail.com',
+    port: 587,
+    secure: true,
+    auth: {
+        user: 'info@www.er-360.com',
+        pass: 'Cook!es2022'
+    },
+    tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+    }
+});
+
+// FOR SERVER
+// var transporter = nodemailer.createTransport({
+//     //pool: true,
+//     host: 'webmail.opentech4u.co.in',
+//     port: 25,
+//     secure: false,
+//     auth: {
+//         user: 'verm@opentech4u.co.in',
+//         pass: 'Verm#sss!Malayasia@2021'
+//     },
+//     tls: {
+//         // do not fail on invalid certs
+//         rejectUnauthorized: false
+//     }
+// });
+
 const TestMail = async () => {
     var email_name = 'Admin',
         email_id = 'subham@synergicsoftek.in', user_name = 'Subham Samanta', password = '123';
 
     return new Promise(async (resolve, reject) => {
-        // FOR LOCAL
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',//'smtp.gmail.com',
-            port: 587,
-            secure: true,
-            auth: {
-                user: 'info@www.er-360.com',
-                pass: 'Cook!es2022'
-            },
-            tls: {
-                // do not fail on invalid certs
-                rejectUnauthorized: false
-            }
-        });
-
-        // FOR SERVER
-        // var transporter = nodemailer.createTransport({
-        //     //pool: true,
-        //     host: 'webmail.opentech4u.co.in',
-        //     port: 25,
-        //     secure: false,
-        //     auth: {
-        //         user: 'verm@opentech4u.co.in',
-        //         pass: 'Verm#sss!Malayasia@2021'
-        //     },
-        //     tls: {
-        //         // do not fail on invalid certs
-        //         rejectUnauthorized: false
-        //     }
-        // });
 
         var mailOptions = {
-            from: 'info@er-360.com',
-            to: 'samantasubham9804@gmail.com',//email_id, 'subham@synergicsoftek.in, '
-            subject: 'VERM User Credential',
+            from: 'ER-360 <info@er-360.com>',
+            to: 'subham@synergicsoftek.in',//email_id, 'subham@synergicsoftek.in, '
+            subject: 'ER-360 User Credential',
             html: '<!DOCTYPE html>'
                 + '<html>'
                 + '<head>'
                 + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-                + '<title>VERM</title>'
+                + '<title>ER-360</title>'
                 + '<style type="text/css">'
                 + 'body{margin:0; padding:0; font-family:14px; font-family:Arial, Helvetica, sans-serif;}'
                 + '</style>'
@@ -98,40 +99,16 @@ const TestMail = async () => {
 const UserCredential = async (email_id, user_name, password) => {
     var email_name = 'Admin'
     return new Promise(async (resolve, reject) => {
-        // FOR LOCAL
-        // var transporter = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: 'synergicbbps@gmail.com',
-        //         pass: 'Signature@123'
-        //     }
-        // });
-
-        // FOR SERVER
-        var transporter = nodemailer.createTransport({
-            //pool: true,
-            host: 'webmail.opentech4u.co.in',
-            port: 25,
-            secure: false,
-            auth: {
-                user: 'verm@opentech4u.co.in',
-                pass: 'Verm#sss!Malayasia@2021'
-            },
-            tls: {
-                // do not fail on invalid certs
-                rejectUnauthorized: false
-            }
-        });
 
         var mailOptions = {
-            from: 'verm@opentech4u.co.in',
-            to: 'sumanmitra0096@gmail.com',//email_id,
-            subject: 'VERM User Credential',
+            from: 'ER-360 <info@er-360.com>',
+            to: email_id,
+            subject: 'ER-360 User Credential',
             html: '<!DOCTYPE html>'
                 + '<html>'
                 + '<head>'
                 + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-                + '<title>VERM</title>'
+                + '<title>ER-360</title>'
                 + '<style type="text/css">'
                 + 'body{margin:0; padding:0; font-family:14px; font-family:Arial, Helvetica, sans-serif;}'
                 + '</style>'
@@ -184,40 +161,16 @@ const AssignTeamMail = async (emp_id, team_name) => {
         email_id = dt.msg[0].email,
         user_name = dt.msg[0].emp_name;
     return new Promise(async (resolve, reject) => {
-        // FOR LOCAL
-        // var transporter = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: 'synergicbbps@gmail.com',
-        //         pass: 'Signature@123'
-        //     }
-        // });
-
-        // FOR SERVER
-        var transporter = nodemailer.createTransport({
-            //pool: true,
-            host: 'webmail.opentech4u.co.in',
-            port: 25,
-            secure: false,
-            auth: {
-                user: 'verm@opentech4u.co.in',
-                pass: 'Verm#sss!Malayasia@2021'
-            },
-            tls: {
-                // do not fail on invalid certs
-                rejectUnauthorized: false
-            }
-        });
 
         var mailOptions = {
-            from: 'verm@opentech4u.co.in',
+            from: 'ER-360 <info@er-360.com>',
             to: email_id,
             subject: 'Team Assign',
             html: '<!DOCTYPE html>'
                 + '<html>'
                 + '<head>'
                 + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-                + '<title>VERM</title>'
+                + '<title>ER-360</title>'
                 + '<style type="text/css">'
                 + 'body{margin:0; padding:0; font-family:14px; font-family:Arial, Helvetica, sans-serif;}'
                 + '</style>'
@@ -233,7 +186,7 @@ const AssignTeamMail = async (emp_id, team_name) => {
                 + '<h2 style="font-size:18px; font-weight:700; font-family:Arial, Helvetica, sans-serif;">Hi ' + user_name + ',</h2>'
                 // + '<h2 style="font-size:18px; font-weight:700; font-family:Arial, Helvetica, sans-serif;">Congratulations</h2>'
                 + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">You are successfully assigned to <b>' + team_name + '</b>.</p>'
-                + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">For more information please visit our web portal <a href="' + client_url + '">VERM</a>.</p>'
+                + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">For more information please visit our web portal <a href="' + client_url + '">ER-360</a>.</p>'
                 // + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">Please click on the link bellow to login.</p>'
                 + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:19px; padding-bottom:15px; margin:0;"><strong>Your Sincerely</strong>,<br>'
                 + email_name + '</p>'
@@ -269,33 +222,18 @@ const ActiveTeamMail = async (emp_data, inc_name, inc_id, team_name) => {
     var res_dt = dt.msg.length > 0 ? dt.msg[0] : {};
     var email_name = 'Admin';
     return new Promise(async (resolve, reject) => {
-        // FOR SERVER
-        var transporter = nodemailer.createTransport({
-            //pool: true,
-            host: 'webmail.opentech4u.co.in',
-            port: 25,
-            secure: false,
-            auth: {
-                user: 'verm@opentech4u.co.in',
-                pass: 'Verm#sss!Malayasia@2021'
-            },
-            tls: {
-                // do not fail on invalid certs
-                rejectUnauthorized: false
-            }
-        });
 
         for (let emp of emp_data) {
 
             var mailOptions = {
-                from: 'verm@opentech4u.co.in',
+                from: 'ER-360 <info@er-360.com>',
                 to: emp.email,
                 subject: `ALERT !! One Incident, ${inc_name} Occures.`,
                 html: '<!DOCTYPE html>'
                     + '<html>'
                     + '<head>'
                     + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-                    + '<title>VERM</title>'
+                    + '<title>ER-360</title>'
                     + '<style type="text/css">'
                     + 'body{margin:0; padding:0; font-family:14px; font-family:Arial, Helvetica, sans-serif;}'
                     + '</style>'
@@ -315,7 +253,7 @@ const ActiveTeamMail = async (emp_data, inc_name, inc_id, team_name) => {
                     + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;"><b>Location: </b> ' + res_dt.offshore + ', ' + res_dt.location + ' (' + res_dt.latt + ', ' + res_dt.longt + ').</p>'
                     + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;"><b>Tire: </b> ' + res_dt.tire + '.</p>'
                     + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">You are from ' + team_name + ', activated for this incident<b>' + inc_name + '</b> .</p>'
-                    + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">For more information please visit our web portal <a href="' + client_url + '">VERM</a>.</p>'
+                    + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">For more information please visit our web portal <a href="' + client_url + '">ER-360</a>.</p>'
                     // + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:22px; padding-bottom:15px; margin:0;">Please click on the link bellow to login.</p>'
                     + '<p style="font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:400; line-height:19px; padding-bottom:15px; margin:0;"><strong>Your Sincerely</strong>,<br>'
                     + email_name + '</p>'
@@ -346,40 +284,16 @@ const ActiveTeamMail = async (emp_data, inc_name, inc_id, team_name) => {
 const ResetPasswordEmail = async (email_id, user_name, en_dt, flag) => {
     var email_name = 'Admin'
     return new Promise(async (resolve, reject) => {
-        // FOR LOCAL
-        // var transporter = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: 'synergicbbps@gmail.com',
-        //         pass: 'Signature@123'
-        //     }
-        // });
-
-        // FOR SERVER
-        var transporter = nodemailer.createTransport({
-            //pool: true,
-            host: 'webmail.opentech4u.co.in',
-            port: 25,
-            secure: false,
-            auth: {
-                user: 'verm@opentech4u.co.in',
-                pass: 'Verm#sss!Malayasia@2021'
-            },
-            tls: {
-                // do not fail on invalid certs
-                rejectUnauthorized: false
-            }
-        });
 
         var mailOptions = {
-            from: 'verm@opentech4u.co.in',
+            from: 'ER-360 <info@er-360.com>',
             to: email_id,
-            subject: 'VERM Reset Password',
+            subject: 'ER-360 Reset Password',
             html: '<!DOCTYPE html>'
                 + '<html>'
                 + '<head>'
                 + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
-                + '<title>VERM</title>'
+                + '<title>ER-360</title>'
                 + '<style type="text/css">'
                 + 'body{margin:0; padding:0; font-family:14px; font-family:Arial, Helvetica, sans-serif;}'
                 + '</style>'
