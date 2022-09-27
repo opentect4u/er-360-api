@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 const { F_Select } = require('./MasterModule');
 
 // var client_url = 'http://localhost:4200/#/';
-var client_url = 'https://er-360/#/';
-var api_url = 'https://api.er-360/';
+var client_url = 'https://er-360.com/#/';
+var api_url = 'https://api.er-360.com/';
 
 // SEND EMAIL WITH GMAIL
 var transporter = nodemailer.createTransport({

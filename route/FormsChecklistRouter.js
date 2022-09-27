@@ -627,6 +627,9 @@ FormRouter.post('/oil_spill_file', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
     var files = req.files ? (req.files.file ? req.files.file : null) : null,
         data = req.body;
+
+    var table_name, fields, values, where, flag, res_dt;
+
     var dir = 'assets/repository',
         subdir = dir + '/' + data.inc_no,
         sub_subdir = subdir + '/oil_spill';
@@ -637,39 +640,70 @@ FormRouter.post('/oil_spill_file', async (req, res) => {
     }
 
     if (files) {
-        var fileName = data.inc_no + '_' + files.name.split(' ').join('_'),
-            filePath = 'repository/' + data.inc_no + '/oil_spill/' + fileName
-        files.mv('assets/' + filePath, async (err) => {
-            if (err) {
-                console.log(`${fileName} not uploaded`);
-            } else {
-                console.log(`Successfully ${fileName} uploaded`);
+        table_name = 'md_repository_category'
+        var select = `id, catg_name`
+        where = `catg_name = "${data.inc_no}"`
+        var order = null
+        var dt = await F_Select(select, table_name, where, order);
+        var repo_id = dt.suc > 0 ? dt.msg[0].id : null
 
-                table_name = 'md_repository_category'
-                var select = `id, catg_name`
-                where = `catg_name = "${data.inc_no}"`
-                var order = null
-                var dt = await F_Select(select, table_name, where, order);
-                var repo_id = dt.suc > 0 ? dt.msg[0].id : null
+        if (Array.isArray(files)) {
+            for (let file of files) {
+                let fileName = data.inc_no + '_' + file.name.split(' ').join('_')
+                let filePath = 'repository/' + data.inc_no + '/oil_spill/' + fileName
+                file.mv('assets/' + filePath, async (err) => {
+                    if (err) {
+                        console.log(`${fileName} not uploaded`);
+                    } else {
+                        console.log(`Successfully ${fileName} uploaded`);
+                    }
+                })
 
-                var table_name = 'td_repository',
-                    fields = `(catg_id, form_name, form_path, created_by, created_at)`,
-                    values = `("${repo_id}", "Oil Spill Modelling Form", "${filePath}", "${data.user}", "${datetime}")`,
-                    where = null,
-                    flag = 0;
-                var r_dt = await F_Insert(table_name, fields, values, where, flag)
+                table_name = 'td_repository'
+                fields = `(catg_id, form_name, form_path, created_by, created_at)`
+                values = `("${repo_id}", "Oil Spill Modelling Form ${file.name}", "${filePath}", "${data.user}", "${datetime}")`
+                where = null
+                flag = 0;
+                let r_dt = await F_Insert(table_name, fields, values, where, flag)
 
                 table_name = 'td_oilspill_file'
                 fields = '(inc_id, file_path, created_by, created_at)'
                 values = `("${data.inc_id}", "${filePath}", "${data.user}", "${datetime}")`
                 where = null
                 flag = 0
-                var res_dt = await F_Insert(table_name, fields, values, where, flag)
-                res.send(res_dt)
-                // await SectionImageSave(data, filename);
+                res_dt = await F_Insert(table_name, fields, values, where, flag)
             }
-        })
+        } else {
+            var fileName = data.inc_no + '_' + files.name.split(' ').join('_'),
+                filePath = 'repository/' + data.inc_no + '/oil_spill/' + fileName
+            files.mv('assets/' + filePath, async (err) => {
+                if (err) {
+                    console.log(`${fileName} not uploaded`);
+                } else {
+                    console.log(`Successfully ${fileName} uploaded`);
+
+                    table_name = 'td_repository'
+                    fields = `(catg_id, form_name, form_path, created_by, created_at)`
+                    values = `("${repo_id}", "Oil Spill Modelling Form", "${filePath}", "${data.user}", "${datetime}")`
+                    where = null
+                    flag = 0;
+                    var r_dt = await F_Insert(table_name, fields, values, where, flag)
+
+                    table_name = 'td_oilspill_file'
+                    fields = '(inc_id, file_path, created_by, created_at)'
+                    values = `("${data.inc_id}", "${filePath}", "${data.user}", "${datetime}")`
+                    where = null
+                    flag = 0
+                    res_dt = await F_Insert(table_name, fields, values, where, flag)
+                    // res.send(res_dt)
+                    // await SectionImageSave(data, filename);
+                }
+            })
+        }
+    } else {
+        res_dt = { suc: 0, msg: 'No file selected!!' }
     }
+    res.send(res_dt)
 })
 //////////////////////////////////////////////////////////////////////////////////
 
