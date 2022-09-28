@@ -35,7 +35,8 @@ io.on('connection', async function (socket) {
 	socket.on('user_status', () => {
 		//var sql = `SELECT employee_id, emp_name, email, personal_cnct_no, user_type, emp_status, user_status FROM md_employee WHERE delete_flag = "N" AND employee_id > 0 AND emp_status = 'A' ORDER BY emp_name`;
 		var sql = `SELECT a.employee_id, a.emp_name, a.email, a.personal_cnct_no, a.user_type, a.emp_status, a.user_status, b.team_id, c.team_name, d.position, a.img,
-		IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt 
+		IF(a.user_status = 'L', TIMESTAMPDIFF(MINUTE,a.login_dt, NOW()), IF(a.user_status = 'O', TIMESTAMPDIFF(MINUTE,a.login_dt, a.logout_dt), 0)) last_login, DATE_FORMAT(a.login_dt, '%d/%m/%Y') log_dt,
+		a.login_dt as last_log_time 
 		FROM md_employee a, td_team_members b, md_teams c, md_position d 
 		WHERE a.id=b.emp_id AND b.team_id=c.id AND a.emp_pos_id=d.id AND a.delete_flag = "N" AND a.employee_id > 0 AND a.emp_status = 'A'
 		ORDER BY a.emp_name`;
@@ -271,9 +272,9 @@ app.get('/send_message', (req, res) => {
 				"to": to_number,
 				"type": "template",
 				"template": {
-					"name": "hello_world",
+					"name": "custom",
 					"language": {
-						"code": "en_US"
+						"code": "en"
 					}
 				}
 			})
