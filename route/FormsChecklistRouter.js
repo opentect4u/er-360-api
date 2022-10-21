@@ -959,4 +959,34 @@ FormRouter.get('/investigation_del', async (req, res) => {
 })
 //////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// INVESTIGATION REPORT ///////////////////////////////////////
+FormRouter.post('/upload_img', async (req, res) => {
+    var files = req.files ? (req.files.file ? req.files.file : null) : null;
+
+    var dir = 'assets/uploads',
+        subdir = dir + '/weekly_meeting';
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    }
+
+    if (files) {
+        var fileName = files.name.split(' ').join('_').split('-').join('_'),
+            file_path = 'uploads/comcen_notification_file/' + fileName
+
+        files.mv('assets/' + file_path, async (err) => {
+            if (err) {
+                console.log(`${fileName} not uploaded`);
+                res_dt = { suc: 0, msg: `${fileName} not uploaded` }
+                res.send(res_dt)
+            } else {
+                console.log(`Successfully ${fileName} uploaded`);
+                res.send({ suc: 1, msg: "Uploaded Successfully", path: file_path })
+            }
+        })
+    } else {
+        res.send({ suc: 0, msg: "No File Selected" })
+    }
+})
+//////////////////////////////////////////////////////////////////////////////////
+
 module.exports = { FormRouter, lesson_file_save };

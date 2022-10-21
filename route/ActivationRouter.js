@@ -79,9 +79,10 @@ ActivationRouter.post('/activation', async (req, res) => {
 
 		if (dt.suc == 0) break;
 	}
-
-	// EMAIL NOTIFICATION
-	var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
+	if (data.flag == 'Y') {
+		// EMAIL NOTIFICATION
+		var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
+	}
 
 	res.send(dt)
 

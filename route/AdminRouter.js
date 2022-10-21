@@ -1,5 +1,5 @@
 const express = require('express');
-const { F_Insert, F_Select, CreateActivity } = require('../modules/MasterModule');
+const { F_Insert, F_Select, CreateActivity, F_Delete } = require('../modules/MasterModule');
 const dateFormat = require('dateformat');
 const bcrypt = require('bcrypt');
 const { UserCredential } = require('../modules/EmailModule');
@@ -439,6 +439,131 @@ AdmRouter.get('/team_type', async (req, res) => {
         whr = id > 0 ? `id = ${id}` : null;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
+})
+///////////////////////////////////////////////////
+
+/////////////////// CONTACT CATEGORY //////////////////////
+AdmRouter.get('/contact_catg', async (req, res) => {
+    var id = req.query.id,
+        table_name = 'md_contact_catg',
+        select = 'id, catg_name',
+        whr = id > 0 ? `delete_flag = 'N' AND id=${id}` : `delete_flag = 'N'`,
+        order = null;
+    var dt = await F_Select(select, table_name, whr, order);
+    res.send(dt);
+})
+
+AdmRouter.post('/contact_catg', async (req, res) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+    var data = req.body;
+    var table_name = 'md_contact_catg',
+        fields = data.id > 0 ? `catg_name = "${data.catg_name}", modified_by = "${data.user}", modified_dt = "${datetime}"` :
+            '(catg_name, created_by, created_dt)',
+        values = `("${data.catg_name}", "${data.user}", "${datetime}")`,
+        whr = `id = ${data.id}`,
+        flag = data.id > 0 ? 1 : 0,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    var user_id = data.user,
+        act_type = flag > 0 ? 'M' : 'C',
+        activity = `Contact Category ${data.catg_name} IS ${flag_type}`;
+    var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+
+    var dt = await F_Insert(table_name, fields, values, whr, flag);
+    res.send(dt)
+})
+
+AdmRouter.get('/contact_catg_del', async (req, res) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+    var data = req.query;
+    var table_name = 'md_contact_catg',
+        fields = `delete_flag = "Y", modified_by = "${data.user}", modified_dt = "${datetime}"`,
+        values = null,
+        whr = `id = ${data.id}`,
+        flag = data.id > 0 ? 1 : 0;
+
+    var select = 'catg_name',
+        select_whr = `id = ${data.id}`;
+    var select_dt = await F_Select(select, table_name, select_whr, null);
+    var user_id = data.user,
+        act_type = 'D',
+        activity = `Contact Category: ${select_dt.msg[0].catg_name} IS DELETED`;
+    var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+
+    var dt = await F_Insert(table_name, fields, values, whr, flag);
+    res.send(dt)
+})
+///////////////////////////////////////////////////
+
+/////////////////// CONTACT INFO //////////////////////
+AdmRouter.get('/contact_info', async (req, res) => {
+    var id = req.query.id,
+        table_name = 'td_contact_info a, md_contact_catg b',
+        select = 'a.id, a.catg_id, b.catg_name, a.con_desc, a.con_name, a.con_addr, a.con_email, a.con_no',
+        whr = id > 0 ? `a.catg_id=b.id AND a.catg_id=${id}` : `a.catg_id=b.id`,
+        order = null;
+    var dt = await F_Select(select, table_name, whr, order);
+    res.send(dt);
+})
+
+AdmRouter.post('/contact_info', async (req, res) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+        data = req.body,
+        table_name, fields, values, whr, flag, res_dt;
+    if (data.dt.length > 0) {
+        for (let dt of data.dt) {
+            table_name = 'td_contact_info'
+            fields = dt.id > 0 ? `catg_id = "${data.catg_id}", con_desc = "${dt.con_desc}", con_name = "${dt.con_name}", con_addr = "${dt.con_addr}", con_email = "${dt.con_email}", con_no = "${dt.con_no}", modified_by = "${data.user}", modified_dt = "${datetime}"` :
+                `(catg_id, con_desc, con_name, con_addr, con_email, con_no, created_by, created_dt)`;
+            values = `("${data.catg_id}", "${dt.con_desc}", "${dt.con_name}", "${dt.con_addr}", "${dt.con_email}", "${dt.con_no}", "${data.user}", "${datetime}")`;
+            whr = dt.id > 0 ? `id = ${dt.id}` : null;
+            flag = dt.id > 0 ? 1 : 0;
+            res_dt = await F_Insert(table_name, fields, values, whr, flag);
+            if (res_dt.suc == 0) {
+                break;
+            }
+        }
+        res.send(res_dt)
+    }
+})
+
+AdmRouter.get('/contact_info_dash', async (req, res) => {
+    var select, table_name, whr, order, con_info = {};
+    table_name = 'td_contact_info a, md_contact_catg b'
+    select = 'DISTINCT a.catg_id, b.catg_name'
+    whr = `a.catg_id=b.id`;
+    order = null
+    var catg_list = await F_Select(select, table_name, whr, order)
+    var i = 0
+    // console.log(catg_list);
+    for (let catg of catg_list.msg) {
+        select = 'id, con_desc, con_name, con_addr, con_email, con_no'
+        table_name = 'td_contact_info'
+        whr = `catg_id = ${catg.catg_id}`
+        let cat_info = await F_Select(select, table_name, whr, order)
+        con_info[catg.catg_name] = { catg_id: catg.catg_id, info: cat_info.msg }
+        i++;
+    }
+    res.send({ suc: 1, msg: con_info })
+    // console.log(con_info);
+})
+
+AdmRouter.get('/contact_info_del', async (req, res) => {
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+    var data = req.query;
+    var table_name = 'td_contact_info',
+        select = 'con_name',
+        select_whr = `id = ${data.id}`;
+    var select_dt = await F_Select(select, table_name, select_whr, null);
+    var user_id = data.user,
+        act_type = 'D',
+        activity = `Contact Information Named, ${select_dt.msg[0].con_name} IS DELETED at ${datetime} by ${data.user}`;
+    var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+
+    var whr = `id = ${data.id}`;
+    var dt = await F_Delete(table_name, whr)
+
+    res.send(dt)
 })
 ///////////////////////////////////////////////////
 

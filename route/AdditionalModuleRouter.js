@@ -15,15 +15,22 @@ const MakePDF = async (template, upload_path, file_data, header) => {
     var html = fs.readFileSync(template, "utf8");
 
     // SET PDF OPTIONS //
+    // var options = {
+    //     format: "A4",
+    //     orientation: "portrait",
+    //     border: "10mm",
+    //     header: {
+    //         height: "20mm",
+    //         contents: `<div style="text-align: center;">${header}</div>`
+    //     }
+    // };
     var options = {
         format: "A4",
         orientation: "portrait",
-        border: "10mm",
-        header: {
-            height: "20mm",
-            contents: `<div style="text-align: center;">${header}</div>`
-        }
-    };
+        dpi: 200,
+        quality: 80,
+        border: "5mm",
+    }
 
     // EMBEDD DATA INTO HTML TEMPLATE //
     var document = {
@@ -518,6 +525,150 @@ const InvestigationPdfGen = async (data, file1, file2, file3, row_id) => {
         }
     })
 }
+// END //
+
+// COMCEN NOTIFICATION //
+AddModrouter.get('/comcen_notification', async (req, res) => {
+    var data = require('../assets/uploads/test.json'),
+        datetime = dateFormat(new Date(), "ddmmyyyyHHMM"),
+        inc_datetime = dateFormat(data.datetime, "yyyy-mm-dd HH:MM"),
+        select, table_name, whr, order, fields, values, flag, res_dt, dt, catgres_dt;
+
+    var dir = 'assets/uploads/comcen_notification_data',
+        subdir = dir + '/' + data.inc_id;
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    }
+
+    var jsonContent = JSON.stringify(data);
+    var json_file_path = `assets/uploads/comcen_notification_data/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.json`,
+        json_path = `uploads/comcen_notification_data/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.json`;
+
+    fs.writeFile(json_file_path, jsonContent, 'utf8', async (err) => {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        } else {
+            var template = "assets/template/comcen_notification.html"
+            var upload_path = `assets/repository/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.pdf`,
+                pdf_path = `repository/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.pdf`;
+            var pdf_dt = await MakePDF(template, upload_path, data, header = 'Comcen Notification')
+
+            table_name = 'md_repository_category'
+            select = 'id, catg_name'
+            whr = `catg_name="${data.inc_id}"`
+            order = null;
+            dt = await F_Select(select, table_name, whr, order);
+            var repo_catg_id = 0;
+            if (dt.msg.length > 0 && dt.suc > 0) {
+                repo_catg_id = dt.msg[0].id;
+
+                table_name = 'td_repository'
+                fields = '(catg_id, form_name, form_path, created_by, created_at)'
+                values = `("${dt.msg[0].id}", "Comcen Notification ${datetime} ${data.seq_no}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                res_dt = await F_Insert(table_name, fields, values, null, flag)
+            } else {
+                table_name = 'md_repository_category'
+                fields = '(catg_name, created_by, created_at)'
+                values = `("${data.inc_id}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                catgres_dt = await F_Insert(table_name, fields, values, null, flag)
+
+                repo_catg_id = catgres_dt.lastId.insertId;
+
+                table_name = 'td_repository'
+                fields = '(catg_id, form_name, form_path, created_by, created_at)'
+                values = `("${catgres_dt.lastId.insertId}", "Comcen Notification ${datetime} ${data.seq_no}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                res_dt = await F_Insert(table_name, fields, values, null, flag)
+            }
+
+            table_name = 'td_comcen_notification'
+            fields = '(inc_no, repo_catg_id, noti_dt, json_path, pdf_path, created_by, created_dt)'
+            values = `("${data.inc_id}", "${repo_catg_id}", "${data.datetime}", "${json_path}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+            res_dt = await F_Insert(table_name, fields, values, null, 0);
+            res.send(res_dt);
+        }
+        // console.log("JSON file has been saved.");
+    });
+
+    // console.log(pdf_path);
+    // res.send(res_dt);
+})
+
+AddModrouter.post('/comcen_notification', async (req, res) => {
+    var data = req.body,
+        datetime = dateFormat(data.datetime, "ddmmyyyyHHMM"),
+        inc_datetime = dateFormat(data.datetime, "yyyy-mm-dd HH:MM"),
+        select, table_name, whr, order, fields, values, flag, res_dt, dt, catgres_dt;
+
+    var dir = 'assets/uploads/comcen_notification_data',
+        subdir = dir + '/' + data.inc_id;
+    if (!fs.existsSync(subdir)) {
+        fs.mkdirSync(subdir);
+    }
+
+    var jsonContent = JSON.stringify(data);
+    var json_file_path = `assets/uploads/comcen_notification_data/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.json`,
+        json_path = `uploads/comcen_notification_data/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.json`;
+
+    fs.writeFile(json_file_path, jsonContent, 'utf8', async (err) => {
+        if (err) {
+            console.log("An error occured while writing JSON Object to File.");
+            return console.log(err);
+        } else {
+            console.log('JSON File Create: ', 'File uploaded');
+            var template = "assets/template/comcen_notification.html"
+            var upload_path = `assets/repository/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.pdf`,
+                pdf_path = `repository/${data.inc_id}/${data.inc_id}_${datetime}_${data.seq_no}.pdf`;
+            var pdf_dt = await MakePDF(template, upload_path, data, header = 'Comcen Notification')
+
+            table_name = 'md_repository_category'
+            select = 'id, catg_name'
+            whr = `catg_name="${data.inc_id}"`
+            order = null;
+            dt = await F_Select(select, table_name, whr, order);
+
+            var repo_catg_id = 0;
+            if (dt.msg.length > 0 && dt.suc > 0) {
+                repo_catg_id = dt.msg[0].id;
+
+                table_name = 'td_repository'
+                fields = '(catg_id, form_name, form_path, created_by, created_at)'
+                values = `("${dt.msg[0].id}", "Comcen Notification ${datetime} ${data.seq_no}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                res_dt = await F_Insert(table_name, fields, values, null, flag)
+            } else {
+                table_name = 'md_repository_category'
+                fields = '(catg_name, created_by, created_at)'
+                values = `("${data.inc_id}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                catgres_dt = await F_Insert(table_name, fields, values, null, flag)
+
+                repo_catg_id = catgres_dt.lastId.insertId;
+
+                table_name = 'td_repository'
+                fields = '(catg_id, form_name, form_path, created_by, created_at)'
+                values = `("${catgres_dt.lastId.insertId}", "Comcen Notification ${datetime} ${data.seq_no}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+                flag = 0;
+                res_dt = await F_Insert(table_name, fields, values, null, flag)
+            }
+
+            if (res_dt.suc > 0) {
+                table_name = 'td_comcen_notification'
+                fields = '(inc_no, repo_catg_id, noti_dt, json_path, pdf_path, created_by, created_dt)'
+                values = `("${data.inc_id}", "${repo_catg_id}", "${data.datetime}", "${json_path}", "${pdf_path}", "${data.user}", "${inc_datetime}")`
+                res_dt = await F_Insert(table_name, fields, values, null, 0);
+                res.send(res_dt);
+            }
+            else {
+                res.send(res_dt)
+            }
+        }
+        // console.log("JSON file has been saved.");
+    });
+})
 // END //
 
 // TESTING //

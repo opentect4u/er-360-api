@@ -1,0 +1,874 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Comcen Notification</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" href="https://api.er-360.com/template/images/favicon.png" type="image/x-icon">
+
+
+  <link rel="stylesheet" type="text/css" href="https://api.er-360.com/template/css/apps.css">
+  <link rel="stylesheet" type="text/css" href="https://api.er-360.com/template/css/apps_inner.css">
+  <link rel="stylesheet" type="text/css" href="https://api.er-360.com/template/css/res.css">
+
+</head>
+
+<body>
+  <style>
+    html {
+      zoom: 0.75;
+    }
+
+    .headerMainTop_3 {
+      max-height: 200px;
+      min-height: 200px;
+    }
+
+    .fieldNor {
+      padding-left: 15px;
+    }
+
+    .checked_item {
+      color: green;
+    }
+
+    .unchecked_item {
+      color: red;
+    }
+
+    .imageLink {
+      position: relative;
+      display: inline-block;
+      margin: 8px;
+    }
+
+    .attchments_inv {
+      border: 1px solid #ddd;
+      padding: 5px;
+      width: 170px;
+    }
+  </style>
+  <div class="wrapper">
+    <div class="headerMain">
+      <div class="headerMainTop_1"><span>VOLUME 3</span>
+        HEALTH, SAFETY, SECURITY AND ENVIRONMENT</div>
+
+      <div class="headerMainTop_2">
+        <p><span>Appendix 9: Notification Form</span>
+          NOTIFICATION FORM (NF)</p>
+      </div>
+
+      <div class="headerMainTop_3">
+        <div class="logoSec"><img src="https://api.er-360.com/template/images/logo.png" alt="" /></div>
+        <div class="comcen">
+          <p><span>COMCEN:</span>
+
+            Tel: +603-2331 2141/42/43/44 OR +603-2161 1703<br>
+
+            Fax: +603-2161 1696 / +603-2051 2101<br>
+
+            SMS: +6019-384 4696 / +6012-316 8496<br>
+
+            Email: comcen@petronas.com.my</p>
+        </div>
+        <div class="from">
+
+          <ul class="ulLiNormal">
+            <li><strong>FROM:</strong><label class="fieldNor">{{from}}</label></li>
+            <li><strong>BU:</strong><label class="fieldNor">{{bu}}</label></li>
+            <li><strong>Tel:</strong><label class="fieldNor">{{tel}}</label></li>
+            <li><strong>Fax:</strong><label class="fieldNor">{{fax}}</label></li>
+            <li><strong>Sequence No:</strong><label class="fieldNor">{{seq_no}}</label></li>
+          </ul>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="bodyContentSec">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="tableCustomMain">
+        <tbody>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <thead>
+                  <tr>
+                    <th class="col_3_1"><strong>Type</strong>
+                      (OPU to Tick)</th>
+                    <th class="col_3_2">COMCEN to notify the following notification list:
+                      (OPU to tick <strong>With IMPACT / Hi-PO / No IMPACT</strong> where
+                      relevant)</th>
+                    <th class="col_3_3"><strong>OPU</strong> to notify internally
+                      as follows:</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+                    <td><label class="fieldNor">{{#ifCond opu_type.non_emer '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond opu_type.non_emer '==' false}}<input type="checkbox">{{/ifCond}}
+                        Non emergency</label><br>
+                      <label class="fieldNor">{{#ifCond opu_type.tire1 '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond opu_type.tire1 '==' false}}<input type="checkbox">{{/ifCond}}
+                        Tier 1</label><br>
+                      <label class="fieldNor">{{#ifCond opu_type.tire2 '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond opu_type.tire2 '==' false}}<input type="checkbox">{{/ifCond}}
+                        Tier 2</label>
+                      <!-- <label class="fieldNor"><input type="checkbox" {{#ifCond opu_type.tire1 '==' true}} checked {{/ifCond}}> Tier 1</label><br>
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond opu_type.tire2 '==' true}} checked {{/ifCond}}> Tier 2</label> -->
+                    </td>
+                    <td>
+                      <!-- <label class="fieldNor"><input type="checkbox" {{#ifCond comcen.with_impact '==' true}} checked {{/ifCond}}> <strong>With IMPACT / HIGH POTENTIAL INCIDENT*</strong></label><br> -->
+                      <label class="fieldNor">{{#ifCond comcen.with_impact '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond comcen.with_impact '==' false}}<input type="checkbox">{{/ifCond}}
+                        <strong>With IMPACT / HIGH POTENTIAL INCIDENT*</strong></label><br>
+
+                      <ul>
+                        <li>PETRONAS ELT</li>
+                        <li>VP GHSSE</li>
+                        <li>Head GHSE</li>
+                        <li>Head Group Security </li>
+                        <li>Head Group Strategic Communications</li>
+                        <li>GM HSE MPM (for Domestic Upstream Emergency
+                          only)</li>
+                      </ul>
+
+                      <!-- <label class="fieldNor"><input type="checkbox" {{#ifCond comcen.no_impact '==' true}} checked {{/ifCond}}> <strong>No IMPACT*</strong></label><br> -->
+                      <label class="fieldNor">{{#ifCond comcen.no_impact '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond comcen.no_impact '==' false}}<input type="checkbox">{{/ifCond}}
+                        <strong>No IMPACT*</strong></label><br>
+
+                      <ul>
+                        <li>VP GHSSE</li>
+                        <li>Head GHSE</li>
+                        <li>Head Group Security</li>
+                        <li>Head Group Strategic Communications</li>
+                        <li>Head Group Strategic Communications</li>
+                        <li>GM HSE MPM (for Domestic Upstream Emergency only)</li>
+                      </ul>
+                    </td>
+                    <td>
+                      <ul>
+                        <li>Notification list as
+                          established by OPU /
+                          BU</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+
+                      <!-- <label class="fieldNor"><input type="checkbox" {{#ifCond opu_type.tire3 '==' true}} checked {{/ifCond}}> Tier 3</label> -->
+                      <label class="fieldNor">{{#ifCond opu_type.tire3 '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond opu_type.tire3 '==' false}}<input type="checkbox">{{/ifCond}}
+                        Tier 3</label>
+                    </td>
+                    <td>
+
+                      <ul>
+                        <li>PETRONAS ELT</li>
+                        <li>VP GHSSE</li>
+                        <li>Head GHSE</li>
+                        <li>Head Group Security </li>
+                        <li>Head Group Strategic Communications</li>
+                        <li>GM HSE MPM (for Domestic Upstream Emergency
+                          only)</li>
+                      </ul>
+                    </td>
+                    <td>
+                      <ul>
+                        <li>Notification list as
+                          established by OPU /
+                          BU</li>
+                      </ul>
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>*DESCRIPTION OF IMPACT, EMERGENCY, NON-EMERGENCY & HI-PO</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_half_1">
+                      <label class="fieldNor"> <strong>Impact:</strong></label><br>
+                      <ul>
+                        <li>Fatality</li>
+                        <li>Major injury / health effect that resulted in Permanent Partial <br>
+                          Disability / Lost Workday Case more than 4 days<br>
+                        </li>
+                        <li>Occupational Illness with irreversible health impact<br>
+                        </li>
+                        <li>Asset damage equal or exceeding USD 100,000<br>
+                        </li>
+                        <li>LOPC release equal to or above Tier 1 threshold quantity**<br>
+                        </li>
+                        <li>Spill no longer confined within company site, with off-site <br>
+                          environmental impact (e.g. visible contamination to soil / water <br>
+                          system, fish killed, vegetation damaged). <br>
+                        </li>
+                        <li>Emission or discharge from regulated / permitted source, exceeding <br>
+                          regulatory standard<br>
+                        </li>
+                        <li>Chemical / Noise over exposure (exceeds the occupational exposure <br>
+                          limit (OEL))<br>
+                        </li>
+                        <li>Local media / public concerns with considerable reputation <br>
+                          consequence or worst</li>
+                      </ul>
+                    </td>
+                    <td class="col_half_2">
+                      <label class="fieldNor"><strong>Emergency:</strong></label><br>
+                      <ul>
+                        <li>Incident where emergency <br>
+                          or crisis team have been activated (Tier 1, Tier 2, or <br>
+                          Tier 3)</li>
+                      </ul>
+                      <label class="fieldNor"><strong>Non-Emergency:</strong></label><br>
+                      <ul>
+                        <li>Incident where there is no
+                          activation of emergency or
+                          crisis team</li>
+                      </ul>
+                      <label class="fieldNor"><strong>High Potential (Hi-Po)
+                          Incident:</strong></label><br>
+                      <ul>
+                        <li>Any incident which, under
+                          different circumstances,
+                          would have caused more
+                          severe consequences leading
+                          to a major incident</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      <p><strong>** Note:</strong> Natural gas, Methane, Ethane, Propane, Butane, LPG, LNG = 500 kg
+                        Petrol, Gasoline, Methanol, above 15 API Gravity Crude oil = 1000 kg or 7 bbl
+                        Diesel, below 15 API Gravity Crude oil = 2000 kg or 14 bbl
+                        For other material, please refer to PTS 18.06.01 / API 754 Standard</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+
+                <tbody>
+
+                  <tr>
+                    <td class="col_3_1">
+                      <div class="logoImgMid"><img src="https://api.er-360.com/template/images/logo.png" alt=""></div>
+                    </td>
+                    <td class="col_3_2">
+                      NOTIFICATION FORM
+                    </td>
+                    <td class="col_3_3">
+                      <ul class="ulLiNormal">
+                        <li><strong>BU:</strong><label class="fieldNor">{{bu}}</label></li>
+                        <li><strong>OPU:</strong><label class="fieldNor">{{opu}}</label></li>
+                        <li><strong>Tel:</strong><label class="fieldNor">{{tel}}</label></li>
+                        <li><strong>Fax:</strong><label class="fieldNor">{{fax}}</label></li>
+                      </ul>
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>*** Type of
+                        Notification</p>
+                    </td>
+                    <!-- <td class="col_3_two_2">
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond type_of_noti.initial '==' true}} checked {{/ifCond}}> Initial</label>
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond type_of_noti.update '==' true}} checked {{/ifCond}}> Update</label>
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond type_of_noti.nothing_to_report '==' true}} checked {{/ifCond}}> Nothing To Report</label>
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond type_of_noti.stand_down '==' true}} checked {{/ifCond}}> Stand Down / All Clear</label>
+                      <label class="fieldNor"><input type="checkbox" {{#ifCond type_of_noti.temp_case '==' true}} checked {{/ifCond}}> Temporary Cease of Operations
+                        (will be resumed on {{type_of_noti.dt}} Time: {{type_of_noti.time}} ) </label>
+                    </td> -->
+                    <td class="col_3_two_2">
+                      <label class="fieldNor">{{#ifCond type_of_noti.initial '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond type_of_noti.initial '==' false}}<input type="checkbox">{{/ifCond}}
+                        Initial</label>
+                      <label class="fieldNor">{{#ifCond type_of_noti.update '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond type_of_noti.update '==' false}}<input type="checkbox">{{/ifCond}}
+                        Update</label>
+                      <label class="fieldNor">{{#ifCond type_of_noti.nothing_to_report '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond type_of_noti.nothing_to_report '==' false}}<input type="checkbox">{{/ifCond}}
+                        Nothing To Report</label>
+                      <label class="fieldNor">{{#ifCond type_of_noti.stand_down '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond type_of_noti.stand_down '==' false}}<input type="checkbox">{{/ifCond}}
+                        Stand Down / All Clear</label>
+                      <label class="fieldNor">{{#ifCond type_of_noti.temp_case '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                        {{#ifCond type_of_noti.temp_case '==' false}}<input type="checkbox">{{/ifCond}}
+                        Temporary Cease of Operations
+                        (will be resumed on {{type_of_noti.dt}} Time: {{type_of_noti.time}} ) </label>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION A: BASIC INFORMATION</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>Location:</p>
+                    </td>
+                    <td class="col_3_two_2">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable">
+                        <tbody>
+                          <tr>
+                            <!-- <td><label class="fieldNor"><input type="checkbox" {{#ifCond location.onshore '==' true}} checked {{/ifCond}}> Onshore <input type="text"></label></td>
+                            <td><label class="fieldNor"><input type="checkbox" {{#ifCond location.temp_case '==' true}} checked {{/ifCond}}> Malaysia</label></td> -->
+                            <td><label class="fieldNor">{{#ifCond location.onshore '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond location.onshore '==' false}}<input type="checkbox">{{/ifCond}}
+                                Onshore</label></td>
+                            <td><label class="fieldNor">{{#ifCond location.malaysia '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond location.malaysia '==' false}}<input type="checkbox">{{/ifCond}}
+                                Malaysia</label></td>
+                            <td><label class="fieldNor">Date: {{location.dt}}</label></td>
+                          </tr>
+
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond location.offshore '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond location.offshore '==' false}}<input type="checkbox">{{/ifCond}}
+                                Offshore</label></td>
+                            <td><label class="fieldNor">{{#ifCond location.international '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond location.international '==' false}}<input type="checkbox">{{/ifCond}}
+                                International</label></td>
+                            <td><label class="fieldNor">Time: {{location.time}}</label></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>Department
+                        Responsible:</p>
+                    </td>
+                    <td class="col_3_two_2">{{dept_res}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION B: TYPE</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>HSE &
+                        Process Safety</p>
+                    </td>
+                    <td class="col_3_two_2">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond hse.fire '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.fire '==' false}}<input type="checkbox">{{/ifCond}}
+                                Fire </label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.exp '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.exp '==' false}}<input type="checkbox">{{/ifCond}} Explosion</label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.haz '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.haz '==' false}}<input type="checkbox">{{/ifCond}} HAZMAT</label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.hi_po '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.hi_po '==' false}}<input type="checkbox">{{/ifCond}} Hi-Po Incident</label></td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond hse.chem '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.chem '==' false}}<input type="checkbox">{{/ifCond}} Chemical / Noise Over
+                                Exposure </label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.liquid '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.liquid '==' false}}<input type="checkbox">{{/ifCond}} Loss of Primary Containment (Liquid)</label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.gas '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.gas '==' false}}<input type="checkbox">{{/ifCond}} Loss of Primary Containment (Gaseous)</label></td>
+                            <td><label class="fieldNor">{{#ifCond hse.spill '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.spill '==' false}}<input type="checkbox">{{/ifCond}} Spillage</label></td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond hse.other '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond hse.other '==' false}}<input type="checkbox">{{/ifCond}} Others. Please specify:</label>
+                              {{#ifCond hse.other '==' true}}
+                                <span class="fieldNor">&nbsp; {{hse.other_text}}</span>
+                              {{/ifCond}}
+                            </td>
+                            <td><label class="fieldNor">Release Volume: </label>&nbsp;{{hse.rel_vol}}</td>
+                            <td><label class="fieldNor">Recovered Volume: </label>&nbsp;{{hse.recov_vol}}</td>
+                            <td>&nbsp;</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>Security</p>
+                    </td>
+                    <td class="col_3_two_2">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond security.comm '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.comm '==' false}}<input type="checkbox">{{/ifCond}} Community Disturbance </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.encro '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.encro '==' false}}<input type="checkbox">{{/ifCond}} Encroachment / Intrusion</label></td>
+                            <td><label class="fieldNor">{{#ifCond security.bomb '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.bomb '==' false}}<input type="checkbox">{{/ifCond}} Bomb Threat</label></td>
+                            <td><label class="fieldNor">{{#ifCond security.piracy '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.piracy '==' false}}<input type="checkbox">{{/ifCond}} Piracy</label></td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond security.rob '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.rob '==' false}}<input type="checkbox">{{/ifCond}} Robbery </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.demo '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.demo '==' false}}<input type="checkbox">{{/ifCond}} Demonstration </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.host '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.host '==' false}}<input type="checkbox">{{/ifCond}} Hostage </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.kidn '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.kidn '==' false}}<input type="checkbox">{{/ifCond}} Kidnapping </label></td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond security.hija '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.hija '==' false}}<input type="checkbox">{{/ifCond}} Hijack </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.sea_rob '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.sea_rob '==' false}}<input type="checkbox">{{/ifCond}} Sea Robbery </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.murder '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.murder '==' false}}<input type="checkbox">{{/ifCond}} Murder </label></td>
+                            <td><label class="fieldNor">{{#ifCond security.terror '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.terror '==' false}}<input type="checkbox">{{/ifCond}} Terrorist Attack </label></td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond security.other '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond security.other '==' false}}<input type="checkbox">{{/ifCond}} Others </label>
+                              <span class="fieldNor">&nbsp;{{security.other_text}}</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>Transportation</p>
+                    </td>
+                    <td class="col_3_two_2">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond transport.land '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond transport.land '==' false}}<input type="checkbox">{{/ifCond}} Land </label></td>
+                            <td><label class="fieldNor">{{#ifCond transport.water '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond transport.water '==' false}}<input type="checkbox">{{/ifCond}} Water</label></td>
+                            <td><label class="fieldNor">{{#ifCond transport.air '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond transport.air '==' false}}<input type="checkbox">{{/ifCond}} Air </label></td>
+                            <td><label class="fieldNor">{{#ifCond transport.other '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond transport.other '==' false}}<input type="checkbox">{{/ifCond}} Others, please specify: </label>
+                              <span class="fieldNor">&nbsp;{{transport.other_text}}</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="col_3_two_1">
+                      <p>Natural Disaster</p>
+                    </td>
+                    <td class="col_3_two_2">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond natu_dis.flood '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond natu_dis.flood '==' false}}<input type="checkbox">{{/ifCond}} Flood </label></td>
+                            <td><label class="fieldNor">{{#ifCond natu_dis.eartqk '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond natu_dis.eartqk '==' false}}<input type="checkbox">{{/ifCond}} Earthquake</label></td>
+                            <td><label class="fieldNor">{{#ifCond natu_dis.tus '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond natu_dis.tus '==' false}}<input type="checkbox">{{/ifCond}} Tsunami </label></td>
+                            <td><label class="fieldNor">{{#ifCond natu_dis.other '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond natu_dis.other '==' false}}<input type="checkbox">{{/ifCond}}Others, please specify: </label>
+                              <span class="fieldNor">&nbsp;{{natu_dis.other_text}}</span>
+                            </td>
+                          </tr>
+
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION C: IMPACT</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond impact.peop '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond impact.peop '==' false}}<input type="checkbox">{{/ifCond}} People (specify in SECTION D) </label></td>
+                            <td><label class="fieldNor">{{#ifCond impact.env '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond impact.env '==' false}}<input type="checkbox">{{/ifCond}} Environment</label></td>
+                            <td><label class="fieldNor">{{#ifCond impact.asset '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond impact.asset '==' false}}<input type="checkbox">{{/ifCond}} Asset </label></td>
+                            <td><label class="fieldNor">{{#ifCond impact.repu '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond impact.repu '==' false}}<input type="checkbox">{{/ifCond}} Reputation</label></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION D: INJURED / ILL / FATALITY / MISSING</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor"><strong>Number of Injured Person</strong></label><br>
+                              <label class="fieldNor">{{#ifCond injury_type.petro '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond injury_type.petro '==' false}}<input type="checkbox">{{/ifCond}} PETRONAS ( {{injury_type.petro_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond injury_type.contr '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond injury_type.contr '==' false}}<input type="checkbox">{{/ifCond}} Contractor ( {{injury_type.contr_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond injury_type.trd '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond injury_type.trd '==' false}}<input type="checkbox">{{/ifCond}} 3rd Party ( {{injury_type.trd_no}} )</label>
+                            </td>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor"><strong>Number of Ill Person</strong></label><br>
+                              <label class="fieldNor">{{#ifCond ill_type.petro '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond ill_type.petro '==' false}}<input type="checkbox">{{/ifCond}} PETRONAS ( {{ill_type.petro_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond ill_type.contr '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond ill_type.contr '==' false}}<input type="checkbox">{{/ifCond}} Contractor ( {{ill_type.contr_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond ill_type.3rd '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond ill_type.trd '==' false}}<input type="checkbox">{{/ifCond}} 3rd Party ( {{ill_type.trd_no}} )</label>
+                            </td>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor"><strong>Number of Fatality</strong></label><br>
+
+                              <label class="fieldNor">{{#ifCond fata_type.petro '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond fata_type.petro '==' false}}<input type="checkbox">{{/ifCond}} PETRONAS ( {{fata_type.petro_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond fata_type.contr '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond fata_type.contr '==' false}}<input type="checkbox">{{/ifCond}} Contractor ( {{fata_type.contr_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond fata_type.trd '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond fata_type.trd '==' false}}<input type="checkbox">{{/ifCond}} 3rd Party ( {{fata_type.trd_no}} )</label>
+                            </td>
+                            <td style="vertical-align: top !important;">
+
+                              <label class="fieldNor"><strong>Number of Missing</strong></label><br>
+
+                              <label class="fieldNor">{{#ifCond miss_type.petro '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond miss_type.petro '==' false}}<input type="checkbox">{{/ifCond}} PETRONAS ( {{miss_type.petro_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond miss_type.contr '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond miss_type.contr '==' false}}<input type="checkbox">{{/ifCond}} Contractor ( {{miss_type.contr_no}} ) </label><br>
+                              <label class="fieldNor">{{#ifCond miss_type.trd '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond miss_type.trd '==' false}}<input type="checkbox">{{/ifCond}} 3rd Party ( {{miss_type.trd_no}} )</label>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION E: POTENTIAL ESCALATION</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">{{#ifCond poten_escal.under_control '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond poten_escal.under_control '==' false}}<input type="checkbox">{{/ifCond}} Under control with available resources. No
+                                potential of escalation</label></td>
+                            <td><label class="fieldNor">{{#ifCond poten_escal.may_req '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond poten_escal.may_req '==' false}}<input type="checkbox">{{/ifCond}} May require additional resources (e.g.
+                                authorities, contractors, mutual aid group)</label></td>
+                            <td><label class="fieldNor">{{#ifCond poten_escal.auth_may_take_over '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond poten_escal.auth_may_take_over '==' false}}<input type="checkbox">{{/ifCond}} Authorities may take over command and
+                                control </label></td>
+                            <td><label class="fieldNor">{{#ifCond poten_escal.may_trigger '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond poten_escal.may_trigger '==' false}}<input type="checkbox">{{/ifCond}} May trigger significant authorities / public /
+                                community / media interest</label></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>***SECTION F: AUTHORITIES INFORMED</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0" class="noBorderTable_2">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">Authorities / Date Informed:</label><br>
+                              <span>{{auth_informed.info}}</span>
+                            </td>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor">{{#ifCond auth_informed.police '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.police '==' false}}<input type="checkbox">{{/ifCond}} Police </label><br>
+                              <label class="fieldNor">{{#ifCond auth_informed.fire_dept '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.fire_dept '==' false}}<input type="checkbox">{{/ifCond}} Fire Department </label><br>
+                              <label class="fieldNor">{{#ifCond auth_informed.medical '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.medical '==' false}}<input type="checkbox">{{/ifCond}} Medical</label><br>
+                              <label class="fieldNor">{{#ifCond auth_informed.civil_def '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.civil_def '==' false}}<input type="checkbox">{{/ifCond}} Civil Defence</label>
+
+
+                            </td>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor">{{#ifCond auth_informed.hse_regu '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.hse_regu '==' false}}<input type="checkbox">{{/ifCond}} HSE Regulator: e.g. DOSH, Department of Environment, etc. </label><br>
+                              <label class="fieldNor">Please specify: </label>
+                              <span class="fieldNor">&nbsp;{{auth_informed.hse_regu_dept}}</span>
+                            </td>
+                            <td style="vertical-align: top !important;">
+                              <label class="fieldNor">{{#ifCond auth_informed.others '==' true}}<span class="checked_item">&#10004;</span>{{/ifCond}}
+                                {{#ifCond auth_informed.others '==' false}}<input type="checkbox">{{/ifCond}} Others: e.g. Coast Guard, Marine Dept., Municipality, etc. </label><br>
+                              <label class="fieldNor">Please specify: </label>
+                              <span class="fieldNor">&nbsp;{{auth_informed.others_text}}</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:12px 15px; border-left: #000 solid 1px; border-right: #000 solid 1px; border-bottom: #000 solid 1px;"><strong>*** Mandatory to be filled up for initial notification</strong></td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>SECTION G: BRIEF DESCRIPTION (Who, What, Where, When & Consequence)</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      {{brief_desc}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>SECTION H: RESPONSE / ACTION TAKEN</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      {{action_taken}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="midleTitle"><strong>SECTION I: ADDITIONAL INFORMATION</strong></td>
+          </tr>
+          <tr>
+            <td>
+              <table border="0" cellpadding="0" cellspacing="0" class="tableCustom">
+                <tbody>
+                  <tr>
+                    <td class="col_full">
+                      {{add_info}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table class="tableCustom" cellspacing="0" cellpadding="0" border="0">
+                <tbody>
+                  <tr>
+                    <td class="col_3_1 greenColor">
+                      <strong>SECTION J: STAND DOWN /
+                        ALL CLEAR</strong>
+                    </td>
+                    <td class="col_3_2">
+                      <label class="fieldNor">Date: </label>
+                      <span class="fieldNor">&nbsp;{{stand_down.dt}}</span>
+                    </td>
+                    <td class="col_3_3">
+                      <label class="fieldNor">Time: </label>
+                      <span class="fieldNor">&nbsp;{{stand_down.time}}</span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="col_3_1 greenColor">
+                      <label class="fieldNor"><strong>Authorities / Date Informed:</strong></label>
+                      <br>
+                      &nbsp;{{prepared.info}}
+                    </td>
+                    <td class="col_3_2">
+                      <table class="noBorderTable_3" width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">Name: </label></td>
+                            <td>{{prepared.name}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Designation:</label></td>
+                            <td>{{prepared.desig}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Contact No: </label></td>
+                            <td>{{prepared.contact}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Date / Time:</label></td>
+                            <td>{{prepared.dt}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                    <td class="col_3_3">
+                      <label class="fieldNor">Signature:</label><br>
+                      <div class="mt-3 imageLink">
+                        <img class="attchments_inv" alt="Signature1" src='https://api.er-360.com/{{prepared.signature}}'>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="col_3_1 greenColor">
+                      <label class="fieldNor"><strong>***Approved and Submitted by</strong></label>
+                      <br>
+                      &nbsp;{{approved.info}}
+                    </td>
+                    <td class="col_3_2">
+                      <table class="noBorderTable_3" width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                          <tr>
+                            <td><label class="fieldNor">Name: </label></td>
+                            <td>{{approved.name}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Designation:</label></td>
+                            <td>{{approved.desig}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Contact No: </label></td>
+                            <td>{{approved.contact}}</td>
+                          </tr>
+                          <tr>
+                            <td><label class="fieldNor">Date / Time:</label></td>
+                            <td>{{approved.dt}}</td>
+                          </tr>
+
+                        </tbody>
+                      </table>
+                    </td>
+                    <td class="col_3_3">
+                      <label class="fieldNor">Signature:</label><br>
+                      <div class="mt-3 imageLink">
+                        <img class="attchments_inv" alt="Signature2" src='https://api.er-360.com/{{approved.signature}}'>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>

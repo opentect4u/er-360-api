@@ -1,0 +1,199 @@
+
+
+body {
+  font-family:Arial, Tahoma, Verdana;
+  font-size: 15px; line-height: 28px; color: #000;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  line-height: normal; font-weight: 400;
+display: flex;
+min-height: 100%;
+flex-direction: column;
+}
+
+html {
+    height: 100%;
+}
+
+/*
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+*/
+
+h1, h2, h3, h4, h5, h6, ul, ol, li, form, input, select, div, textarea, p {
+  padding: 0;
+  margin: 0;
+}
+
+p{color:#4d4c4c; padding:0; margin:0;}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: auto
+}
+.clear {
+  margin: 0;
+  padding: 0;
+  clear: both
+}
+.after:after {
+  content: "";
+  display: block;
+  clear: both;
+  visibility: hidden
+}
+a {
+  text-decoration: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  transition: all 0.3s;
+  transition: all 500ms ease-in-out;
+}
+a:hover {
+  text-decoration: none
+}
+
+button{transition: all 0.3s;
+  transition: all 500ms ease-in-out;}
+img {
+  max-width: 100%;
+}
+
+p{margin-bottom:18px;}
+
+.wrapper{
+/*	max-width:1140px; width: 100%;*/
+	max-width:100%; width: 100%; padding:0 15px;
+	margin: 0 auto; box-sizing: border-box;
+}
+
+div{box-sizing: border-box;}
+
+.headerMain{width: 100%;}
+
+.headerMainTop_1{width: 100%;
+padding: 20px 15px 8px 15px;
+border-bottom: #11a99f solid 1px;
+margin-bottom: 7px;
+color: #625d9a;
+text-transform: uppercase;
+font-size: 25px;
+font-weight: 900;}
+.headerMainTop_1 span{display: block; font-size:18px;}
+
+
+.headerMainTop_2{width: 100%; margin-bottom: 20px; color: #000; padding: 0 15px;}
+.headerMainTop_2 p{color: #000; font-size: 16px; line-height: 25px; font-weight: 900; margin: 0; padding: 0;}
+.headerMainTop_2 p span{color: #0ea89b; display: block;}
+
+
+.headerMainTop_3{width: 100%; margin-bottom:0; padding:0 0 0 15px; display:flex; box-sizing: border-box;}
+
+.headerMainTop_3 .logoSec{width: 30%; float: left;}
+.headerMainTop_3 .logoSec img{max-width: 130px; width: 100%;}
+.headerMainTop_3 .comcen{width: 35%; float: left; border: #333 solid 2px; padding: 15px;}
+.headerMainTop_3 .comcen p{color: #000; font-size: 16px; line-height: 25px; margin: 0; padding: 0;}
+.headerMainTop_3 .comcen p span{font-weight: 900; display: block;}
+
+.headerMainTop_3 .from{width: 35%; float: left; border: #333 solid 2px; border-left: none; padding: 15px;}
+
+.headerMainTop_3 .from p{color: #000; font-size: 16px; line-height: 25px; margin: 0; padding: 0;}
+.headerMainTop_3 .from p span{font-weight: 900; display: block;}
+
+
+
+.bodyContentSec{padding: 15px 0; width: 100%;}
+
+.bodyContentSec table.tableCustom{width: 100%;}
+.bodyContentSec table.tableCustom thead{background: #d6e3bc; color: #000; font-size: 17px;}
+.bodyContentSec table.tableCustom thead tr th{padding:7px 15px; text-align: left; border: 1px solid;}
+.bodyContentSec table.tableCustom tbody tr td{color: #000; text-align: left; padding:10px; border: 1px solid; font-size: 15px; vertical-align: top;}
+
+.bodyContentSec table.tableCustom tbody tr td ul{list-style-type: none; margin:3px 0 20px 15px;}
+.bodyContentSec table.tableCustom tbody tr td ul li{list-style-type: disc; margin: 0 0 6px 0; padding: 0; font-size: 15px;}
+
+label.fieldNor{display: inline-block; margin-bottom: 6px;}
+label.fieldNor input{margin-right: 3px;}
+
+
+table.tableCustomMain tbody tr td{vertical-align: top; text-align: left;}
+
+table.tableCustomMain tbody tr td.midleTitle{background: #d6e3bc; color: #000; font-size: 17px; padding:9px 15px; text-align: center; border-left: #000 solid 1px;
+	 border-right:#000 solid 1px;} 
+
+.col_3_1{width:20%}
+.col_3_2, .col_3_3{width: 40%}
+
+
+.col_3_two_1{width:20%}
+.col_3_two_2{width:80%}
+
+.col_half_1{width:50%}
+.col_half_2{width:50%}
+
+.col_full{width:100%}
+
+input[type="text"], input[type="time"], textarea, input[type="date"], textarea, input[type="datetime"], 
+input[type="tel"]{padding: 5px 5px; color: #333; border-radius: 5px; border: #ccc solid 1px; box-sizing: border-box;}
+
+.bodyContentSec table.tableCustom tbody tr td p{color: #000; font-size: 15px; line-height: 25px; margin: 0;}
+
+
+.logoImgMid img{max-width: 77px; width: 100%;}
+
+ul.ulLiNormal{list-style-type: none; margin:0;}
+ul.ulLiNormal li{list-style-type: none; margin: 0 0 6px 0; padding: 0; font-size: 15px; display: flex; align-items: center;}
+ul.ulLiNormal li strong{margin: 0 auto 0 0;}
+ul.ulLiNormal li label{margin: 0 0 0 auto;}
+
+
+table.noBorderTable tbody tr td {
+  border: none !important;
+  border-right: 1px solid #000 !important;}
+table.noBorderTable tbody tr td:last-child {border-right:none!important;}
+table.noBorderTable tbody tr td{width: 33%; vertical-align: middle !important;}
+
+
+table.noBorderTable_2 tbody tr td {
+  border: none !important;
+  border-right: 1px solid #000 !important;}
+table.noBorderTable_2 tbody tr td:last-child {border-right:none!important;}
+table.noBorderTable_2 tbody tr td{width: 25%; padding: 2px 10px !important; vertical-align: middle !important;}
+table.noBorderTable_2 tbody tr td label{margin-bottom: 6px; padding-bottom: 0;}
+
+
+
+table.noBorderTable_3 tbody tr td {
+  border: none !important; border-right:none !important;}
+table.noBorderTable_3 tbody tr td:last-child {border-right:none!important;}
+table.noBorderTable_3 tbody tr td{width: 50%; padding:4px 0 !important; vertical-align: middle !important;}
+table.noBorderTable_3 tbody tr td label{margin-bottom: 6px; padding-bottom: 0;}
+
+
+.greenColor{background: #d6e3bc;}
+
+
+
+
+
+
+
+
+
+
